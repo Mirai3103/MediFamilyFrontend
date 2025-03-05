@@ -38,7 +38,7 @@ const menuItems = [
 		icon: <FiHome className="mr-3 h-4 w-4" />,
 	},
 	{
-		path: "/family",
+		path: "/home/family",
 		label: "Gia đình",
 		icon: <FiUsers className="mr-3 h-4 w-4" />,
 	},
