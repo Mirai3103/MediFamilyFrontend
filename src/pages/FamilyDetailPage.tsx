@@ -1,4 +1,4 @@
-// src/pages/FamilyPage.jsx
+// src/pages/FamilyDetailPage.jsx
 import { useState } from "react";
 import {
 	FiUsers,
@@ -118,7 +118,7 @@ const generateFakeFamily = () => {
 
 const { family, members } = generateFakeFamily();
 
-const FamilyPage = () => {
+const FamilyDetailPage = () => {
 	const [familyData, setFamilyData] = useState(family);
 	const [membersData, setMembersData] = useState(members);
 	const [activeTab, setActiveTab] = useState("members");
@@ -693,4 +693,4 @@ const EditFamilyForm = ({ family, onSubmit, onCancel }) => {
 	);
 };
 
-export default FamilyPage;
+export default FamilyDetailPage;

@@ -33,12 +33,12 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 // Định nghĩa các menu item
 const menuItems = [
 	{
-		path: "/dashboard",
+		path: "/home",
 		label: "Tổng quan",
 		icon: <FiHome className="mr-3 h-4 w-4" />,
 	},
 	{
-		path: "/home/family",
+		path: "/home/families",
 		label: "Gia đình",
 		icon: <FiUsers className="mr-3 h-4 w-4" />,
 	},
