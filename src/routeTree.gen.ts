@@ -11,6 +11,7 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as RegisterImport } from './routes/register'
 import { Route as AboutImport } from './routes/about'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as IndexImport } from './routes/index'
@@ -21,6 +22,12 @@ import { Route as LayoutHomeFamiliesSharingIndexImport } from './routes/_layout/
 import { Route as LayoutHomeFamiliesRecordsIndexImport } from './routes/_layout/home/families/records/index'
 
 // Create/Update Routes
+
+const RegisterRoute = RegisterImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const AboutRoute = AboutImport.update({
   id: '/about',
@@ -98,6 +105,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutImport
       parentRoute: typeof rootRoute
     }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterImport
+      parentRoute: typeof rootRoute
+    }
     '/_layout/home/': {
       id: '/_layout/home/'
       path: '/home'
@@ -161,6 +175,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '': typeof LayoutRouteWithChildren
   '/about': typeof AboutRoute
+  '/register': typeof RegisterRoute
   '/home': typeof LayoutHomeIndexRoute
   '/home/families/$familyId': typeof LayoutHomeFamiliesFamilyIdRoute
   '/home/families': typeof LayoutHomeFamiliesIndexRoute
@@ -172,6 +187,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof LayoutRouteWithChildren
   '/about': typeof AboutRoute
+  '/register': typeof RegisterRoute
   '/home': typeof LayoutHomeIndexRoute
   '/home/families/$familyId': typeof LayoutHomeFamiliesFamilyIdRoute
   '/home/families': typeof LayoutHomeFamiliesIndexRoute
@@ -184,6 +200,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_layout': typeof LayoutRouteWithChildren
   '/about': typeof AboutRoute
+  '/register': typeof RegisterRoute
   '/_layout/home/': typeof LayoutHomeIndexRoute
   '/_layout/home/families/$familyId': typeof LayoutHomeFamiliesFamilyIdRoute
   '/_layout/home/families/': typeof LayoutHomeFamiliesIndexRoute
@@ -197,6 +214,7 @@ export interface FileRouteTypes {
     | '/'
     | ''
     | '/about'
+    | '/register'
     | '/home'
     | '/home/families/$familyId'
     | '/home/families'
@@ -207,6 +225,7 @@ export interface FileRouteTypes {
     | '/'
     | ''
     | '/about'
+    | '/register'
     | '/home'
     | '/home/families/$familyId'
     | '/home/families'
@@ -217,6 +236,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_layout'
     | '/about'
+    | '/register'
     | '/_layout/home/'
     | '/_layout/home/families/$familyId'
     | '/_layout/home/families/'
@@ -229,12 +249,14 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LayoutRoute: typeof LayoutRouteWithChildren
   AboutRoute: typeof AboutRoute
+  RegisterRoute: typeof RegisterRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LayoutRoute: LayoutRouteWithChildren,
   AboutRoute: AboutRoute,
+  RegisterRoute: RegisterRoute,
 }
 
 export const routeTree = rootRoute
@@ -249,7 +271,8 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/_layout",
-        "/about"
+        "/about",
+        "/register"
       ]
     },
     "/": {
@@ -267,6 +290,9 @@ export const routeTree = rootRoute
     },
     "/about": {
       "filePath": "about.tsx"
+    },
+    "/register": {
+      "filePath": "register.tsx"
     },
     "/_layout/home/": {
       "filePath": "_layout/home/index.tsx",
