@@ -11,7 +11,9 @@ dist/
 .vercel
 .netlify
 .wrangler
-
+bun.lock
+src/models/generated
+src/queries/generated
 # IDE
 .vscode/*
 !.vscode/extensions.json
