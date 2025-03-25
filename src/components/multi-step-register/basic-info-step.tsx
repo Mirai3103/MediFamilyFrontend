@@ -31,13 +31,13 @@ export function BasicInfoStep() {
 		<div className="space-y-4">
 			<FormField
 				control={control}
-				name="username"
+				name="fullName"
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>Tên đăng nhập</FormLabel>
+						<FormLabel>Họ và tên</FormLabel>
 						<FormControl>
 							<Input
-								placeholder="Nhập tên đăng nhập"
+								placeholder="Nhập họ tên đầy đủ"
 								{...field}
 							/>
 						</FormControl>
@@ -45,25 +45,6 @@ export function BasicInfoStep() {
 					</FormItem>
 				)}
 			/>
-
-			<FormField
-				control={control}
-				name="password"
-				render={({ field }) => (
-					<FormItem>
-						<FormLabel>Mật khẩu</FormLabel>
-						<FormControl>
-							<Input
-								type="password"
-								placeholder="********"
-								{...field}
-							/>
-						</FormControl>
-						<FormMessage />
-					</FormItem>
-				)}
-			/>
-
 			<FormField
 				control={control}
 				name="email"
@@ -84,13 +65,14 @@ export function BasicInfoStep() {
 
 			<FormField
 				control={control}
-				name="fullName"
+				name="password"
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>Họ và tên</FormLabel>
+						<FormLabel>Mật khẩu</FormLabel>
 						<FormControl>
 							<Input
-								placeholder="Nhập họ tên đầy đủ"
+								type="password"
+								placeholder="********"
 								{...field}
 							/>
 						</FormControl>

@@ -1,6 +1,7 @@
 import React from "react";
 import { FiActivity, FiHome } from "react-icons/fi";
 import { Button } from "../ui/button";
+import { Link } from "@tanstack/react-router";
 
 export default function UnAuthLayout({
 	children,
@@ -54,10 +55,13 @@ export default function UnAuthLayout({
 						<Button
 							variant="outline"
 							className="hidden sm:inline-flex"
+							asChild
 						>
-							Đăng nhập
+							<Link to="/login">Đăng nhập</Link>
 						</Button>
-						<Button>Đăng ký ngay</Button>
+						<Button asChild>
+							<Link to="/register">Đăng ký ngay</Link>
+						</Button>
 					</div>
 				</div>
 			</header>

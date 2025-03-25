@@ -14,14 +14,17 @@ import {
 } from "@/components/ui/card";
 import { BasicInfoStep } from "./basic-info-step";
 import { DoctorInfoStep } from "./doctor-info-step";
+import { useRegister } from "@/queries/generated/auth-controller/auth-controller";
+import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
 
 export function MultiStepRegister() {
 	const [step, setStep] = useState(0);
+	const navigate = useNavigate();
 
 	const methods = useForm<RegisterFormValues>({
 		resolver: zodResolver(registerSchema),
 		defaultValues: {
-			username: "",
 			password: "",
 			email: "",
 			fullName: "",
@@ -32,16 +35,46 @@ export function MultiStepRegister() {
 
 	const { handleSubmit, watch } = methods;
 	const isDoctor = watch("isDoctor");
-
-	const onSubmit = (data: RegisterFormValues) => {
+	const { mutateAsync, isPending } = useRegister();
+	const onSubmit = (data: any) => {
 		console.log("Form submitted:", data);
-		// Thực hiện API call để đăng ký
-		alert("Đăng ký thành công!");
+		mutateAsync({
+			data: {
+				dateOfBirth: data.dateOfBirth.toISOString(),
+				email: data.email,
+				fullName: data.fullName,
+				password: data.password,
+				doctor: isDoctor
+					? {
+							bio: data.bio,
+							licenseNumber: data.licenseNumber,
+							medicalFacility: data.medicalFacility,
+							specialty: data.specialty,
+						}
+					: undefined,
+			},
+		})
+			.then(() => {
+				setTimeout(() => {
+					navigate({
+						to: "/login",
+					});
+				}, 5000);
+				toast.success("Đăng ký tài khoản thành công", {
+					duration: 5000,
+					description: "Đăng nhập để trải nghiệm ứng dụng",
+				});
+			})
+			.catch((e) => {
+				toast.error("Đăng ký tài khoản thất bại", {
+					duration: 5000,
+					description: e.message,
+				});
+			});
 	};
 
 	const goToNext = async () => {
 		const isValid = await methods.trigger([
-			"username",
 			"password",
 			"email",
 			"fullName",
@@ -106,11 +139,14 @@ export function MultiStepRegister() {
 									<Button
 										type="button"
 										variant="outline"
+										disabled={isPending}
 										onClick={goToPrevious}
 									>
 										Quay lại
 									</Button>
-									<Button type="submit">Đăng ký</Button>
+									<Button disabled={isPending} type="submit">
+										Đăng ký
+									</Button>
 								</div>
 							) : (
 								<div className="pt-2 flex justify-end w-full">
@@ -119,11 +155,17 @@ export function MultiStepRegister() {
 										<Button
 											type="button"
 											onClick={goToNext}
+											disabled={isPending}
 										>
 											Tiếp theo
 										</Button>
 									) : (
-										<Button type="submit">Đăng ký</Button>
+										<Button
+											disabled={isPending}
+											type="submit"
+										>
+											Đăng ký
+										</Button>
 									)}
 								</div>
 							)}
