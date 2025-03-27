@@ -1,33 +1,15 @@
 // src/pages/FamilyDetailPage.jsx
 import { useState } from "react";
-import {
-	FiUsers,
-	FiUserPlus,
-	FiEdit,
-	FiMoreVertical,
-	FiPhone,
-	FiMail,
-	FiHome,
-} from "react-icons/fi";
-import { faker } from "@faker-js/faker/locale/vi";
+import { FiUsers, FiUserPlus, FiHome } from "react-icons/fi";
 import {
 	Card,
 	CardContent,
 	CardDescription,
-	CardFooter,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
 	Dialog,
 	DialogContent,
@@ -47,87 +29,21 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { type Family } from "@/models/generated";
+import dayjs from "dayjs";
+import { MemberCard } from "./FamilyMemberCard";
 
-// Giả lập dữ liệu gia đình
-const generateFakeFamily = () => {
-	// Thông tin gia đình
-	const family = {
-		id: faker.string.uuid(),
-		name: "Gia đình " + faker.person.lastName(),
-		address: faker.location.streetAddress() + ", " + faker.location.city(),
-		phone: faker.phone.number(),
-		email: faker.internet.email(),
-		createdAt: faker.date.past(),
-		isHouseholder: true, // Người dùng hiện tại là chủ hộ
-	};
-
-	// Danh sách thành viên
-	const members = [
-		{
-			id: faker.string.uuid(),
-			name: faker.person.fullName(),
-			avatar: `https://placewaifu.com/image/100/100?seed=1`,
-			relationship: "Chủ hộ",
-			birthDate: faker.date.birthdate({ min: 30, max: 50, mode: "age" }),
-			gender: "Nam",
-			phone: faker.phone.number(),
-			email: faker.internet.email(),
-			isCurrentUser: true,
-		},
-	];
-
-	// Thêm các thành viên khác
-	const relationships = [
-		"Vợ/Chồng",
-		"Con trai",
-		"Con gái",
-		"Cha",
-		"Mẹ",
-		"Anh/Chị",
-		"Em",
-	];
-	const genders = ["Nam", "Nữ"];
-
-	for (let i = 0; i < faker.number.int({ min: 2, max: 5 }); i++) {
-		const gender = faker.helpers.arrayElement(genders);
-		let relationship = faker.helpers.arrayElement(relationships);
-
-		// Điều chỉnh mối quan hệ dựa trên giới tính
-		if (relationship === "Con trai" && gender === "Nữ")
-			relationship = "Con gái";
-		if (relationship === "Con gái" && gender === "Nam")
-			relationship = "Con trai";
-
-		members.push({
-			id: faker.string.uuid(),
-			name: faker.person.fullName({
-				sex: gender === "Nam" ? "male" : "female",
-			}),
-			avatar: `https://placewaifu.com/image/100/100?seed=${i + 2}`,
-			relationship: relationship,
-			birthDate: faker.date.birthdate({ min: 1, max: 70, mode: "age" }),
-			gender: gender,
-			phone: faker.phone.number(),
-			email: faker.internet.email(),
-			isCurrentUser: false,
-		});
-	}
-
-	return { family, members };
-};
-
-const { family, members } = generateFakeFamily();
-
-const FamilyDetailPage = () => {
-	const [familyData, setFamilyData] = useState(family);
-	const [membersData, setMembersData] = useState(members);
+interface FamilyDetailPageProps {
+	family: Family;
+}
+const FamilyDetailPage = ({ family }: FamilyDetailPageProps) => {
 	const [activeTab, setActiveTab] = useState("members");
 	const [isAddMemberDialogOpen, setIsAddMemberDialogOpen] = useState(false);
 	const [isEditFamilyDialogOpen, setIsEditFamilyDialogOpen] = useState(false);
 
 	// Format date as DD/MM/YYYY
-	const formatDate = (date: string) => {
-		return new Date(date).toLocaleDateString("vi-VN");
+	const formatDate = (date?: string) => {
+		return dayjs(date).format("DD/MM/YYYY");
 	};
 
 	// Function to calculate age from birth date
@@ -149,30 +65,24 @@ const FamilyDetailPage = () => {
 
 	// Add a new member to the family
 	const handleAddMember = (newMember: any) => {
-		// In a real app, you would send this to your API
-		const memberWithId = {
-			...newMember,
-			id: faker.string.uuid(),
-			isCurrentUser: false,
-			avatar: `https://placewaifu.com/image/100/100?seed=${membersData.length + 1}`,
-		};
-
-		setMembersData([...membersData, memberWithId]);
 		setIsAddMemberDialogOpen(false);
 	};
 
 	// Update family information
 	const handleUpdateFamily = (updatedFamily: any) => {
-		// In a real app, you would send this to your API
-		setFamilyData({
-			...familyData,
-			...updatedFamily,
-		});
 		setIsEditFamilyDialogOpen(false);
 	};
 
 	return (
 		<div>
+			<div className="flex items-center justify-between">
+				<div className="mb-2">
+					<h1 className="text-2xl font-bold text-gray-900">
+						Gia đình: {family.familyName}
+					</h1>
+				</div>
+			</div>
+
 			<Tabs
 				value={activeTab}
 				onValueChange={setActiveTab}
@@ -185,7 +95,7 @@ const FamilyDetailPage = () => {
 
 				<TabsContent value="members" className="space-y-6">
 					{/* Thêm thành viên mới */}
-					{familyData.isHouseholder && (
+					{family.owner.id == 1 && (
 						<div className="flex justify-end">
 							<Dialog
 								open={isAddMemberDialogOpen}
@@ -211,11 +121,11 @@ const FamilyDetailPage = () => {
 
 					{/* Danh sách thành viên */}
 					<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-						{membersData.map((member) => (
+						{(family.familyMembers || []).map((member) => (
 							<MemberCard
 								key={member.id}
 								member={member}
-								isHouseholder={familyData.isHouseholder}
+								isHouseholder={member.relationship === "Chủ hộ"}
 							/>
 						))}
 					</div>
@@ -239,7 +149,7 @@ const FamilyDetailPage = () => {
 										Tên gọi
 									</p>
 									<p className="font-medium">
-										{familyData.name}
+										{family.familyName}
 									</p>
 								</div>
 								<div className="space-y-2">
@@ -247,7 +157,9 @@ const FamilyDetailPage = () => {
 										Ngày tạo
 									</p>
 									<p className="font-medium">
-										{formatDate(familyData.createdAt)}
+										{formatDate(
+											family.createdAt || undefined
+										)}
 									</p>
 								</div>
 								<div className="space-y-2">
@@ -255,7 +167,7 @@ const FamilyDetailPage = () => {
 										Địa chỉ
 									</p>
 									<p className="font-medium">
-										{familyData.address}
+										{family.address}
 									</p>
 								</div>
 								<div className="space-y-2">
@@ -263,7 +175,7 @@ const FamilyDetailPage = () => {
 										Số thành viên
 									</p>
 									<p className="font-medium">
-										{membersData.length} người
+										{family.familyMembers?.length}
 									</p>
 								</div>
 								<div className="space-y-2">
@@ -271,7 +183,7 @@ const FamilyDetailPage = () => {
 										Số điện thoại liên hệ
 									</p>
 									<p className="font-medium">
-										{familyData.phone}
+										{family.phoneNumber}
 									</p>
 								</div>
 								<div className="space-y-2">
@@ -279,7 +191,7 @@ const FamilyDetailPage = () => {
 										Email liên hệ
 									</p>
 									<p className="font-medium">
-										{familyData.email}
+										{family.email}
 									</p>
 								</div>
 							</div>
@@ -295,7 +207,7 @@ const FamilyDetailPage = () => {
 							</CardTitle>
 						</CardHeader>
 						<CardContent>
-							{membersData
+							{(family.familyMembers || [])
 								.filter(
 									(member) => member.relationship === "Chủ hộ"
 								)
@@ -306,20 +218,35 @@ const FamilyDetailPage = () => {
 									>
 										<Avatar className="h-10 w-10 mr-4">
 											<AvatarImage
-												src={householder.avatar}
-												alt={householder.name}
+												src={
+													"https://placewaifu.com/image/200"
+												}
+												alt={
+													householder.user
+														?.fullName ||
+													householder.fullName
+												}
 											/>
 											<AvatarFallback>
-												{householder.name.charAt(0)}
+												{householder.user?.fullName?.charAt(
+													0
+												) ||
+													householder.fullName?.charAt(
+														0
+													)}
 											</AvatarFallback>
 										</Avatar>
 										<div>
 											<p className="font-medium">
-												{householder.name}
+												{householder.user?.fullName ||
+													householder.fullName}
 											</p>
 											<p className="text-sm text-muted-foreground">
-												{householder.phone} •{" "}
-												{householder.email}
+												{householder.user
+													?.phoneNumber ||
+													householder.phoneNumber}
+												{householder.user?.email ||
+													householder.email}
 											</p>
 										</div>
 									</div>
@@ -336,7 +263,7 @@ const FamilyDetailPage = () => {
 			>
 				<DialogContent className="sm:max-w-[425px]">
 					<EditFamilyForm
-						family={familyData}
+						family={family}
 						onSubmit={handleUpdateFamily}
 						onCancel={() => setIsEditFamilyDialogOpen(false)}
 					/>
@@ -347,120 +274,8 @@ const FamilyDetailPage = () => {
 };
 
 // Component for displaying a family member card
-const MemberCard = ({ member, isHouseholder }: any) => {
-	// Calculate age from birth date
-	const age = calculateAge(member.birthDate);
-
-	return (
-		<Card className="overflow-hidden">
-			<CardHeader className="p-0">
-				<div className="relative h-32 bg-gradient-to-r from-primary/10 to-primary/20">
-					{member.isCurrentUser && (
-						<Badge className="absolute top-2 right-2">Bạn</Badge>
-					)}
-					<div className="absolute -bottom-10 left-4">
-						<Avatar className="h-20 w-20 border-4 border-background">
-							<AvatarImage
-								src={member.avatar}
-								alt={member.name}
-							/>
-							<AvatarFallback>
-								{member.name.split(" ").pop().charAt(0)}
-							</AvatarFallback>
-						</Avatar>
-					</div>
-				</div>
-			</CardHeader>
-			<CardContent className="pt-12 pb-4">
-				<div className="flex justify-between items-start">
-					<div>
-						<h3 className="font-semibold text-lg leading-none">
-							{member.name}
-						</h3>
-						<p className="text-sm text-muted-foreground mt-1">
-							{member.relationship}
-						</p>
-					</div>
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" size="icon">
-								<FiMoreVertical className="h-4 w-4" />
-								<span className="sr-only">Thêm tùy chọn</span>
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end">
-							<DropdownMenuItem>
-								<FiEdit className="mr-2 h-4 w-4" />
-								Xem hồ sơ y tế
-							</DropdownMenuItem>
-							{isHouseholder && !member.isCurrentUser && (
-								<>
-									<DropdownMenuSeparator />
-									<DropdownMenuItem>
-										<FiEdit className="mr-2 h-4 w-4" />
-										Chỉnh sửa thông tin
-									</DropdownMenuItem>
-								</>
-							)}
-						</DropdownMenuContent>
-					</DropdownMenu>
-				</div>
-
-				<div className="grid grid-cols-2 gap-2 mt-4">
-					<div className="space-y-1">
-						<p className="text-xs text-muted-foreground">Tuổi</p>
-						<p className="text-sm">{age} tuổi</p>
-					</div>
-					<div className="space-y-1">
-						<p className="text-xs text-muted-foreground">
-							Giới tính
-						</p>
-						<p className="text-sm">{member.gender}</p>
-					</div>
-					<div className="space-y-1 col-span-2">
-						<p className="text-xs text-muted-foreground">
-							Ngày sinh
-						</p>
-						<p className="text-sm">
-							{new Date(member.birthDate).toLocaleDateString(
-								"vi-VN"
-							)}
-						</p>
-					</div>
-				</div>
-			</CardContent>
-			<CardFooter className="border-t px-6 py-3 bg-muted/10">
-				<div className="w-full">
-					<div className="flex items-center">
-						<FiPhone className="h-3 w-3 mr-1 text-muted-foreground" />
-						<p className="text-xs truncate">{member.phone}</p>
-					</div>
-					<div className="flex items-center mt-1">
-						<FiMail className="h-3 w-3 mr-1 text-muted-foreground" />
-						<p className="text-xs truncate">{member.email}</p>
-					</div>
-				</div>
-			</CardFooter>
-		</Card>
-	);
-};
 
 // Helper function to calculate age from birth date
-const calculateAge = (birthDate) => {
-	const today = new Date();
-	const birth = new Date(birthDate);
-	let age = today.getFullYear() - birth.getFullYear();
-	const monthDiff = today.getMonth() - birth.getMonth();
-
-	if (
-		monthDiff < 0 ||
-		(monthDiff === 0 && today.getDate() < birth.getDate())
-	) {
-		age--;
-	}
-
-	return age;
-};
 
 // Form component for adding a new family member
 const AddMemberForm = ({ onSubmit, onCancel }: any) => {

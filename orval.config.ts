@@ -9,6 +9,12 @@ export default defineConfig({
 			mock: false,
 			prettier: true,
 			clean: true,
+			override: {
+				mutator: {
+					path: "src/lib/axios-instance.ts",
+					name: "customInstance",
+				},
+			},
 		},
 		input: {
 			target: "http://localhost:8080/v3/api-docs",
