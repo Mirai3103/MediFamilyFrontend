@@ -55,10 +55,7 @@ export default function LoginPage() {
 			},
 		})
 			.then((data) => {
-				localStorage.setItem(
-					"access_token",
-					data.data.token?.token || ""
-				);
+				localStorage.setItem("access_token", data.token?.token || "");
 				toast.success("Đăng nhập thành công", {
 					duration: 3000,
 				});
