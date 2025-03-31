@@ -1,0 +1,33 @@
+name: Build and Deploy to Prod
+
+on:
+    push:
+        branches:
+            - main # hoặc master, tùy theo nhánh chính của bạn
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: "22" # hoặc phiên bản Node bạn đang sử dụng
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Build
+              run: npm run build # hoặc lệnh build tương ứng của bạn
+
+            - name: Deploy to prod branch
+              run: |
+                  git config --global user.name 'github-actions'
+                  git config --global user.email 'github-actions@github.com'
+                  git checkout -b prod
+                  git add -f build/  # thay build/ bằng thư mục chứa bundle của bạn
+                  git commit -m "Deploy to prod branch"
+                  git push -f origin prod
