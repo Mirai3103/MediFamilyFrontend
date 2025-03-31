@@ -29,8 +29,7 @@ import {
 } from "@/components/ui/command";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { type Family } from "@/models/generated";
-import { usePostCollectionResourceFamilyPost } from "@/queries/generated/family-entity-controller/family-entity-controller";
+import { UserGender, type Family } from "@/models/generated";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -43,6 +42,9 @@ import {
 	FormMessage,
 	Form,
 } from "@/components/ui/form";
+import { useAddMemberToFamily } from "@/queries/generated/family-member-controller/family-member-controller";
+import { useRouter } from "@tanstack/react-router";
+import { toast } from "sonner";
 
 interface FamilyDetailPageProps {
 	family: Family;
@@ -73,7 +75,7 @@ const newMemberSchema = z.object({
 	relationship: z.string({
 		required_error: "Vui lòng chọn quan hệ với chủ hộ",
 	}),
-	gender: z.enum(["Nam", "Nữ"], {
+	gender: z.nativeEnum(UserGender, {
 		required_error: "Vui lòng chọn giới tính",
 	}),
 	birthDate: z.string().refine(
@@ -113,8 +115,23 @@ const AddMemberForm = ({
 	onClose,
 	onSuccess,
 }: FamilyDetailPageProps) => {
-	const [memberType, setMemberType] = useState("new"); // 'new' or 'existing'
-	const { mutate, isPending } = usePostCollectionResourceFamilyPost();
+	const [memberType, setMemberType] = useState("new");
+	const router = useRouter();
+	const { mutate, isPending } = useAddMemberToFamily({
+		mutation: {
+			onSuccess: () => {
+				onSuccess?.();
+				onClose();
+				router.invalidate();
+			},
+			onError: (error) => {
+				toast.error(
+					`Có lỗi xảy ra khi thêm thành viên: ${error.message}`
+				);
+				onClose();
+			},
+		},
+	});
 
 	// Form for new member
 	const newMemberForm = useForm<z.infer<typeof newMemberSchema>>({
@@ -148,20 +165,22 @@ const AddMemberForm = ({
 	];
 
 	const handleSubmitNewMember = (data: z.infer<typeof newMemberSchema>) => {
-		const payload = {
-			...data,
-			familyId: family.id,
-		};
-
-		console.log("Submitting new member:", payload);
-
-		mutate(payload, {
-			onSuccess: () => {
-				onSuccess?.();
-				onClose();
-			},
-			onError: (error) => {
-				console.error("Error adding new member:", error);
+		mutate({
+			id: family.id!,
+			data: {
+				familyId: family.id!,
+				relationship: data.relationship,
+				hasAccount: false,
+				householder: false,
+				memberProfile: !!existingUserForm.getValues("userId")
+					? undefined
+					: {
+							birthDate: data.birthDate,
+							fullName: data.fullName,
+							phoneNumber: data.phoneNumber,
+							gender: data.gender as any,
+							email: data.email,
+						},
 			},
 		});
 	};
@@ -169,20 +188,15 @@ const AddMemberForm = ({
 	const handleSubmitExistingUser = (
 		data: z.infer<typeof existingUserSchema>
 	) => {
-		const payload = {
-			...data,
-			familyId: family.id,
-		};
-
-		console.log("Adding existing user:", payload);
-
-		mutate(payload, {
-			onSuccess: () => {
-				onSuccess?.();
-				onClose();
-			},
-			onError: (error) => {
-				console.error("Error adding existing user:", error);
+		mutate({
+			id: family.id!,
+			data: {
+				familyId: family.id!,
+				relationship: data.relationship,
+				hasAccount: true,
+				accountId: data.userId,
+				householder: data.isHouseholder,
+				memberProfile: undefined,
 			},
 		});
 	};
@@ -328,10 +342,16 @@ const AddMemberForm = ({
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
-													<SelectItem value="Nam">
+													<SelectItem
+														value={UserGender.MALE}
+													>
 														Nam
 													</SelectItem>
-													<SelectItem value="Nữ">
+													<SelectItem
+														value={
+															UserGender.FEMALE
+														}
+													>
 														Nữ
 													</SelectItem>
 												</SelectContent>

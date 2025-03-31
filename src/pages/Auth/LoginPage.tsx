@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
 import { useLogin } from "@/queries/generated/auth-controller/auth-controller";
 import { Link } from "@tanstack/react-router";
+import useAuthRedirect from "./useAuthRedirect";
 
 const loginSchema = z.object({
 	email: z.string().email({ message: "Email không hợp lệ" }),
@@ -36,7 +37,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export default function LoginPage() {
 	const navigate = useNavigate();
 	const { mutateAsync, isPending } = useLogin();
-
+	useAuthRedirect();
 	const form = useForm<LoginFormValues>({
 		resolver: zodResolver(loginSchema),
 		defaultValues: {
