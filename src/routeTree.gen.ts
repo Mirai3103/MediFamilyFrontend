@@ -18,6 +18,7 @@ import { Route as AboutImport } from './routes/about'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as IndexImport } from './routes/index'
 import { Route as LayoutHomeIndexImport } from './routes/_layout/home/index'
+import { Route as LayoutHomeUserProfileImport } from './routes/_layout/home/user-profile'
 import { Route as LayoutHomeFamiliesIndexImport } from './routes/_layout/home/families/index'
 import { Route as LayoutHomeFamiliesFamilyIdImport } from './routes/_layout/home/families/$familyId'
 import { Route as LayoutHomeFamiliesSharingIndexImport } from './routes/_layout/home/families/sharing/index'
@@ -63,6 +64,12 @@ const IndexRoute = IndexImport.update({
 const LayoutHomeIndexRoute = LayoutHomeIndexImport.update({
   id: '/home/',
   path: '/home/',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutHomeUserProfileRoute = LayoutHomeUserProfileImport.update({
+  id: '/home/user-profile',
+  path: '/home/user-profile',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -140,6 +147,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterImport
       parentRoute: typeof rootRoute
     }
+    '/_layout/home/user-profile': {
+      id: '/_layout/home/user-profile'
+      path: '/home/user-profile'
+      fullPath: '/home/user-profile'
+      preLoaderRoute: typeof LayoutHomeUserProfileImport
+      parentRoute: typeof LayoutImport
+    }
     '/_layout/home/': {
       id: '/_layout/home/'
       path: '/home'
@@ -181,6 +195,7 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface LayoutRouteChildren {
+  LayoutHomeUserProfileRoute: typeof LayoutHomeUserProfileRoute
   LayoutHomeIndexRoute: typeof LayoutHomeIndexRoute
   LayoutHomeFamiliesFamilyIdRoute: typeof LayoutHomeFamiliesFamilyIdRoute
   LayoutHomeFamiliesIndexRoute: typeof LayoutHomeFamiliesIndexRoute
@@ -189,6 +204,7 @@ interface LayoutRouteChildren {
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
+  LayoutHomeUserProfileRoute: LayoutHomeUserProfileRoute,
   LayoutHomeIndexRoute: LayoutHomeIndexRoute,
   LayoutHomeFamiliesFamilyIdRoute: LayoutHomeFamiliesFamilyIdRoute,
   LayoutHomeFamiliesIndexRoute: LayoutHomeFamiliesIndexRoute,
@@ -206,6 +222,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/home/user-profile': typeof LayoutHomeUserProfileRoute
   '/home': typeof LayoutHomeIndexRoute
   '/home/families/$familyId': typeof LayoutHomeFamiliesFamilyIdRoute
   '/home/families': typeof LayoutHomeFamiliesIndexRoute
@@ -220,6 +237,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/home/user-profile': typeof LayoutHomeUserProfileRoute
   '/home': typeof LayoutHomeIndexRoute
   '/home/families/$familyId': typeof LayoutHomeFamiliesFamilyIdRoute
   '/home/families': typeof LayoutHomeFamiliesIndexRoute
@@ -235,6 +253,7 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/_layout/home/user-profile': typeof LayoutHomeUserProfileRoute
   '/_layout/home/': typeof LayoutHomeIndexRoute
   '/_layout/home/families/$familyId': typeof LayoutHomeFamiliesFamilyIdRoute
   '/_layout/home/families/': typeof LayoutHomeFamiliesIndexRoute
@@ -251,6 +270,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/register'
+    | '/home/user-profile'
     | '/home'
     | '/home/families/$familyId'
     | '/home/families'
@@ -264,6 +284,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/register'
+    | '/home/user-profile'
     | '/home'
     | '/home/families/$familyId'
     | '/home/families'
@@ -277,6 +298,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/register'
+    | '/_layout/home/user-profile'
     | '/_layout/home/'
     | '/_layout/home/families/$familyId'
     | '/_layout/home/families/'
@@ -327,6 +349,7 @@ export const routeTree = rootRoute
     "/_layout": {
       "filePath": "_layout.tsx",
       "children": [
+        "/_layout/home/user-profile",
         "/_layout/home/",
         "/_layout/home/families/$familyId",
         "/_layout/home/families/",
@@ -345,6 +368,10 @@ export const routeTree = rootRoute
     },
     "/register": {
       "filePath": "register.tsx"
+    },
+    "/_layout/home/user-profile": {
+      "filePath": "_layout/home/user-profile.tsx",
+      "parent": "/_layout"
     },
     "/_layout/home/": {
       "filePath": "_layout/home/index.tsx",

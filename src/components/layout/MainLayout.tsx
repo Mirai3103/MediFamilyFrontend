@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import useUserStore from "@/stores/authStore";
 
 // Định nghĩa các menu item
 const menuItems = [
@@ -86,15 +87,12 @@ interface MainLayoutProps {
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 	const location = useLocation();
 	const navigate = useNavigate();
-	// const { user, logout } = useAuth();
-	const user = {
-		name: "Nguyễn Văn A",
-		email: "huuhoag1412@gmail.com",
-		avatarUrl: "https://i.pravatar.cc/150?u=nguyenvana",
-	};
+	const user = useUserStore((state) => state.profile);
+	const logout = useUserStore((state) => state.logout);
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 
 	const handleLogout = async () => {
+		await logout();
 		navigate({ to: "/login" });
 	};
 
@@ -136,14 +134,20 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 			<div className="p-4 border-t border-sidebar-border">
 				<div className="flex items-center">
 					<Avatar className="h-9 w-9">
-						<AvatarImage src={user?.avatarUrl} alt={user?.name} />
+						<AvatarImage
+							src={
+								user?.avatarUrl ||
+								"https://placewaifu.com/image/300/300"
+							}
+							alt={user?.fullName!}
+						/>
 						<AvatarFallback>
-							{user?.name?.charAt(0) || "U"}
+							{user?.fullName?.charAt(0) || "U"}
 						</AvatarFallback>
 					</Avatar>
 					<div className="ml-3 flex-1 min-w-0">
 						<p className="text-sm font-medium truncate">
-							{user?.name}
+							{user?.fullName}
 						</p>
 						<p className="text-xs text-muted-foreground truncate">
 							{user?.email}
@@ -191,16 +195,19 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 							<div className="flex items-center">
 								<Avatar className="h-10 w-10">
 									<AvatarImage
-										src={user?.avatarUrl}
-										alt={user?.name}
+										src={
+											user?.avatarUrl ||
+											"https://placewaifu.com/image/300/300"
+										}
+										alt={user?.fullName}
 									/>
 									<AvatarFallback>
-										{user?.name?.charAt(0) || "U"}
+										{user?.fullName?.charAt(0) || "U"}
 									</AvatarFallback>
 								</Avatar>
 								<div className="ml-3 flex-1 min-w-0">
 									<p className="text-sm font-medium truncate">
-										{user?.name}
+										{user?.fullName}
 									</p>
 									<p className="text-xs text-muted-foreground truncate">
 										{user?.email}
@@ -309,11 +316,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 						<Button variant="ghost" size="icon" className="ml-2">
 							<Avatar className="h-8 w-8">
 								<AvatarImage
-									src={user?.avatarUrl}
-									alt={user?.name}
+									src={
+										user?.avatarUrl ||
+										"https://placewaifu.com/image/300/300"
+									}
+									alt={user?.fullName}
 								/>
 								<AvatarFallback>
-									{user?.name?.charAt(0) || "U"}
+									{user?.fullName?.charAt(0) || "U"}
 								</AvatarFallback>
 							</Avatar>
 						</Button>

@@ -11,6 +11,7 @@ interface userState {
 	setIsLoading: (isLoading: boolean) => void;
 	setProfile: (profile: User | null | undefined) => void;
 	fetchUserProfile: () => Promise<void>;
+	logout: () => void;
 }
 
 const useUserStore = create<userState>((set) => ({
@@ -20,7 +21,13 @@ const useUserStore = create<userState>((set) => ({
 	setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
 	setIsLoading: (isLoading) => set({ isLoading }),
 	setProfile: (profile) => set({ profile }),
-
+	logout: () => {
+		set({
+			isAuthenticated: false,
+			profile: null,
+		});
+		localStorage.removeItem("access_token");
+	},
 	fetchUserProfile: async () => {
 		try {
 			set({ isLoading: true });

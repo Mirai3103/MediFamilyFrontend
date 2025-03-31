@@ -3,9 +3,7 @@
 @plugin "tailwindcss-animate";
 
 @custom-variant dark (&:is(.dark *));
-span {
-	@apply block;
-}
+
 :root {
 	/* Light Theme - Soft, calming color scheme with medical blue accents */
 	--background: oklch(0.98 0.01 240);
