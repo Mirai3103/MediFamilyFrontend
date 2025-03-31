@@ -1,4 +1,5 @@
 import { defineConfig } from "orval";
+
 export default defineConfig({
 	"health-care": {
 		output: {
@@ -17,7 +18,9 @@ export default defineConfig({
 			},
 		},
 		input: {
-			target: "http://localhost:8080/v3/api-docs",
+			target:
+				process.env.OPEN_API_PATH ||
+				"http://localhost:8080/v3/api-docs",
 		},
 	},
 });

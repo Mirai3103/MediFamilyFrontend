@@ -1,0 +1,50 @@
+name: Build and Deploy to Prod
+
+on:
+    push:
+        branches:
+            - master
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+              with:
+                  token: ${{ secrets.PAT }}
+                  fetch-depth: 0
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: "22"
+            - name: Download OpenAPI spec
+              run: |
+                  curl -H "Authorization: token ${{ secrets.PAT }}" \
+                      -H "Accept: application/vnd.github.v3.raw" \
+                      -o openapi.json \
+                      https://api.github.com/repos/Mirai3103/MedifamilySpring/contents/openapi.json
+
+            - name: Install dependencies
+              run: npm install --legacy-peer-deps
+            - name: Generate API client
+              env:
+                  OPEN_API_PATH: "./openapi.json"
+              run: npm run gen-api
+
+            - name: Build
+              run: npm run build
+
+            - name: Deploy to prod branch
+              run: |
+                  cp -r dist $HOME/dist
+
+                  git checkout --orphan prod
+                  git reset --hard
+                  git clean -fd
+                  cp -r $HOME/dist/* .
+                  git config --global user.name 'github-actions'
+                  git config --global user.email 'github-actions@github.com'
+                  git add .
+                  git commit -m "Deploy to prod branch"
+                  git push -f origin prod
