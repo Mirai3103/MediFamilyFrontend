@@ -132,7 +132,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
 			{/* User profile at bottom */}
 			<div className="p-4 border-t border-sidebar-border">
-				<div className="flex items-center">
+				<Link className="flex items-center" to="/home/user-profile">
 					<Avatar className="h-9 w-9">
 						<AvatarImage
 							src={
@@ -156,7 +156,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 					<Button variant="ghost" size="icon" onClick={handleLogout}>
 						<FiLogOut className="h-5 w-5" />
 					</Button>
-				</div>
+				</Link>
 			</div>
 		</div>
 	);

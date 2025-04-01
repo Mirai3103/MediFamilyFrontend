@@ -52,6 +52,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { HealthProfile, User as IUser } from "@/models/generated";
+import { useUpdateAvatar } from "@/queries/generated/user-controller/user-controller";
+import { useBoolean } from "usehooks-ts";
 
 const profileFormSchema = z.object({
 	fullName: z.string().min(2, { message: "Họ tên phải có ít nhất 2 ký tự" }),
@@ -103,32 +106,43 @@ const healthProfileSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 type HealthProfileValues = z.infer<typeof healthProfileSchema>;
-
-const UserProfile = () => {
+export interface UserProfileProps {
+	profile: IUser;
+	healthProfile: HealthProfile;
+}
+const UserProfile = ({ profile, healthProfile }: UserProfileProps) => {
 	const [isEditMode, setIsEditMode] = useState(false);
 	const [isHealthEditMode, setIsHealthEditMode] = useState(false);
-	const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+	const [avatarUrl, setAvatarUrl] = useState<string | null>(
+		() => profile.avatarUrl!
+	);
+	const {
+		toggle: toggleOpenAvatarDialog,
+		setValue: setValueAvatarDialog,
+		value: openAvatarDialog,
+	} = useBoolean(false);
+	const [avatarFile, setAvatarFile] = useState<File | null>(null);
 	const [activeTab, setActiveTab] = useState("personal");
 
 	// Mock user data
 	const defaultValues: ProfileFormValues = {
-		fullName: "Nguyễn Văn A",
-		email: "nguyenvana@example.com",
-		phone: "0987654321",
-		dateOfBirth: "1990-01-01",
-		address: "123 Đường ABC, Quận XYZ, Hà Nội",
-		bio: "Tôi là một người dùng của hệ thống quản lý hồ sơ y tế gia đình.",
+		email: profile.email || "",
+		fullName: profile.fullName || "",
+		phone: profile.phoneNumber || "",
+		address: profile.address,
+		bio: profile.bio || "",
+		dateOfBirth: profile.dateOfBirth,
 	};
 
 	// Mock health data
 	const defaultHealthValues: HealthProfileValues = {
-		bloodType: "A+",
-		height: 170,
-		weight: 65,
-		allergies: "Hải sản, phấn hoa",
-		chronicDiseases: "Không có",
-		notes: "Khám sức khỏe định kỳ 6 tháng/lần",
-		healthInsuranceNumber: "0342567890",
+		bloodType: healthProfile.bloodType || "",
+		height: healthProfile.height || 0,
+		weight: healthProfile.weight || 0,
+		allergies: healthProfile.allergies || "Không có",
+		chronicDiseases: healthProfile.chronicDiseases || "Không có",
+		notes: healthProfile.notes || "Không có",
+		healthInsuranceNumber: healthProfile.healthInsuranceNumber || "",
 	};
 
 	const form = useForm<ProfileFormValues>({
@@ -163,10 +177,38 @@ const UserProfile = () => {
 
 	const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
+		setAvatarFile(file || null);
 		if (file) {
 			const url = URL.createObjectURL(file);
 			setAvatarUrl(url);
 		}
+	};
+	const { mutate: updateAvatar, isPending: isUpdatingAvatar } =
+		useUpdateAvatar({
+			mutation: {
+				onError: (error) => {
+					toast.error("Cập nhật ảnh đại diện thất bại", {
+						description: error.message,
+					});
+					setAvatarUrl(profile.avatarUrl || null);
+					toggleOpenAvatarDialog();
+				},
+				onSuccess: (e) => {
+					toast.success("Cập nhật ảnh đại diện thành công", {
+						description: "Ảnh đại diện của bạn đã được cập nhật.",
+					});
+					setAvatarUrl(e.avatarUrl || null);
+					toggleOpenAvatarDialog();
+				},
+			},
+		});
+	const handleSaveAvatar = () => {
+		if (!avatarFile) return;
+		updateAvatar({
+			data: {
+				file: avatarFile!,
+			},
+		});
 	};
 
 	const getBMIStatus = () => {
@@ -213,7 +255,7 @@ const UserProfile = () => {
 								<div className="relative">
 									<Avatar className="h-24 w-24">
 										<AvatarImage
-											src={avatarUrl || ""}
+											src={avatarUrl!}
 											alt={defaultValues.fullName}
 										/>
 										<AvatarFallback className="text-lg">
@@ -226,7 +268,10 @@ const UserProfile = () => {
 										</AvatarFallback>
 									</Avatar>
 
-									<Dialog>
+									<Dialog
+										open={openAvatarDialog}
+										onOpenChange={setValueAvatarDialog}
+									>
 										<DialogTrigger asChild>
 											<Button
 												size="icon"
@@ -255,7 +300,8 @@ const UserProfile = () => {
 											<DialogFooter className="mt-4">
 												<Button
 													type="submit"
-													onClick={() => {}}
+													disabled={isUpdatingAvatar}
+													onClick={handleSaveAvatar}
 												>
 													Lưu thay đổi
 												</Button>
@@ -946,7 +992,8 @@ const UserProfile = () => {
 																Số BHYT
 															</p>
 															<p className="text-sm mt-1">
-																0342567890
+																{healthProfile.healthInsuranceNumber ||
+																	"Chưa cập nhật"}
 															</p>
 														</div>
 													</div>

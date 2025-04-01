@@ -31,7 +31,7 @@ const useUserStore = create<userState>((set) => ({
 	fetchUserProfile: async () => {
 		try {
 			set({ isLoading: true });
-			const response = await apiClient.get("/api/user/me");
+			const response = await apiClient.get("/api/user/@me");
 			set({
 				profile: response.data,
 				isAuthenticated: true,
