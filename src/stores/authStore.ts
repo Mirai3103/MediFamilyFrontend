@@ -1,7 +1,7 @@
 import { User } from "@/models/generated";
 import { create } from "zustand";
 import axios from "axios";
-import apiClient from "@/lib/axios-instance";
+import { me } from "@/queries/generated/profile-controller/profile-controller";
 
 interface userState {
 	isAuthenticated: boolean;
@@ -31,9 +31,9 @@ const useUserStore = create<userState>((set) => ({
 	fetchUserProfile: async () => {
 		try {
 			set({ isLoading: true });
-			const response = await apiClient.get("/api/user/@me");
+			const response = await me();
 			set({
-				profile: response.data,
+				profile: response,
 				isAuthenticated: true,
 				isLoading: false,
 			});

@@ -15,10 +15,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type Family } from "@/models/generated";
-import dayjs from "dayjs";
 import { MemberCard } from "./FamilyMemberCard";
 import FamilyInfo from "./FamilyInfo";
 import AddMemberForm from "./AddMemberForm";
+import useUserStore from "@/stores/authStore";
 
 interface FamilyDetailPageProps {
 	family: Family;
@@ -28,32 +28,9 @@ const FamilyDetailPage = ({ family }: FamilyDetailPageProps) => {
 	const [isAddMemberDialogOpen, setIsAddMemberDialogOpen] = useState(false);
 	const [isEditFamilyDialogOpen, setIsEditFamilyDialogOpen] = useState(false);
 
-	// Format date as DD/MM/YYYY
-	const formatDate = (date?: string) => {
-		return dayjs(date).format("DD/MM/YYYY");
-	};
-
-	// Function to calculate age from birth date
-	const calculateAge = (birthDate: string) => {
-		const today = new Date();
-		const birth = new Date(birthDate);
-		let age = today.getFullYear() - birth.getFullYear();
-		const monthDiff = today.getMonth() - birth.getMonth();
-
-		if (
-			monthDiff < 0 ||
-			(monthDiff === 0 && today.getDate() < birth.getDate())
-		) {
-			age--;
-		}
-
-		return age;
-	};
-
-	// Add a new member to the family
-	const handleAddMember = (newMember: any) => {
-		setIsAddMemberDialogOpen(false);
-	};
+	const currentUserProfileId = useUserStore(
+		(state) => state.profile?.profile?.id || state.profile?.id
+	);
 
 	// Update family information
 	const handleUpdateFamily = (updatedFamily: any) => {
@@ -82,7 +59,7 @@ const FamilyDetailPage = ({ family }: FamilyDetailPageProps) => {
 
 				<TabsContent value="members" className="space-y-6">
 					{/* Thêm thành viên mới */}
-					{family.owner.id == 1 && (
+					{family.owner.id === currentUserProfileId && (
 						<div className="flex justify-end">
 							<Dialog
 								open={isAddMemberDialogOpen}

@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/command";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { UserGender, type Family } from "@/models/generated";
+import { ProfileGender, type Family } from "@/models/generated";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -75,7 +75,7 @@ const newMemberSchema = z.object({
 	relationship: z.string({
 		required_error: "Vui lòng chọn quan hệ với chủ hộ",
 	}),
-	gender: z.nativeEnum(UserGender, {
+	gender: z.nativeEnum(ProfileGender, {
 		required_error: "Vui lòng chọn giới tính",
 	}),
 	birthDate: z.string().refine(
@@ -103,7 +103,7 @@ const newMemberSchema = z.object({
 
 // Zod schema for existing user
 const existingUserSchema = z.object({
-	userId: z.string({ required_error: "Vui lòng chọn người dùng" }),
+	userId: z.coerce.number({ required_error: "Vui lòng chọn người dùng" }),
 	relationship: z.string({
 		required_error: "Vui lòng chọn quan hệ với chủ hộ",
 	}),
@@ -151,7 +151,7 @@ const AddMemberForm = ({
 	const existingUserForm = useForm<z.infer<typeof existingUserSchema>>({
 		resolver: zodResolver(existingUserSchema),
 		defaultValues: {
-			userId: "",
+			userId: undefined,
 			relationship: "",
 			isHouseholder: false,
 		},
@@ -169,18 +169,18 @@ const AddMemberForm = ({
 			id: family.id!,
 			data: {
 				familyId: family.id!,
-				relationship: data.relationship,
+				relationship: data.relationship as string,
 				hasAccount: false,
 				householder: false,
 				memberProfile: !!existingUserForm.getValues("userId")
 					? undefined
-					: {
+					: ({
 							birthDate: data.birthDate,
 							fullName: data.fullName,
 							phoneNumber: data.phoneNumber,
 							gender: data.gender as any,
 							email: data.email,
-						},
+						} as any),
 			},
 		});
 	};
@@ -194,7 +194,7 @@ const AddMemberForm = ({
 				familyId: family.id!,
 				relationship: data.relationship,
 				hasAccount: true,
-				accountId: data.userId,
+				accountId: data.userId!,
 				householder: data.isHouseholder,
 				memberProfile: undefined,
 			},
@@ -343,13 +343,15 @@ const AddMemberForm = ({
 												</FormControl>
 												<SelectContent>
 													<SelectItem
-														value={UserGender.MALE}
+														value={
+															ProfileGender.MALE
+														}
 													>
 														Nam
 													</SelectItem>
 													<SelectItem
 														value={
-															UserGender.FEMALE
+															ProfileGender.FEMALE
 														}
 													>
 														Nữ
@@ -473,7 +475,7 @@ const AddMemberForm = ({
 										<FormLabel>Chọn người dùng</FormLabel>
 										<Select
 											onValueChange={field.onChange}
-											defaultValue={field.value}
+											defaultValue={field.value + ""}
 										>
 											<FormControl>
 												<SelectTrigger className="w-full">

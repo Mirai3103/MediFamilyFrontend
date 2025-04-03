@@ -18,7 +18,7 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Family, FamilyMemberGender } from "@/models/generated";
+import { Family, ProfileGender } from "@/models/generated";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import dayjs from "dayjs";
 import {
@@ -46,14 +46,14 @@ export const MemberCard = ({
 	onViewMedicalProfile,
 	onEditMember,
 }: MemberCardProps) => {
-	const age = calculateAge(member.user?.dateOfBirth || member.dateOfBirth!);
-	const fullName = member.user?.fullName || member.fullName;
-	const email = member.user?.email || member.email;
-	const phoneNumber = member.user?.phoneNumber || member.phoneNumber;
-	const dateOfBirth = member.user?.dateOfBirth || member.dateOfBirth;
-	const gender = member.gender;
+	const age = calculateAge(member.profile?.dateOfBirth!);
+	const fullName = member.profile?.fullName;
+	const email = member.profile?.email;
+	const phoneNumber = member.profile?.phoneNumber;
+	const dateOfBirth = member.profile?.dateOfBirth;
+	const gender = member.profile?.gender;
 	const relationship = member.relationship;
-	const address = member.user?.address || "Chưa cập nhật";
+	const address = member.profile?.address || "Chưa cập nhật";
 	const avatarUrl = "https://placewaifu.com/image/200";
 
 	// Lấy chữ cái đầu của họ tên để làm avatar fallback
@@ -68,7 +68,7 @@ export const MemberCard = ({
 	};
 
 	// Định dạng gender để hiển thị thân thiện hơn
-	const formatGender = (gender: FamilyMemberGender) => {
+	const formatGender = (gender: ProfileGender) => {
 		if (!gender) return "Chưa cập nhật";
 		switch (gender.toUpperCase()) {
 			case "MALE":
@@ -253,17 +253,11 @@ export const MemberCard = ({
 };
 
 const calculateAge = (birthDate: string) => {
-	const today = new Date();
-	const birth = new Date(birthDate);
-	let age = today.getFullYear() - birth.getFullYear();
-	const monthDiff = today.getMonth() - birth.getMonth();
-
-	if (
-		monthDiff < 0 ||
-		(monthDiff === 0 && today.getDate() < birth.getDate())
-	) {
-		age--;
+	const today = dayjs();
+	const birth = dayjs(birthDate);
+	const age = today.diff(birth, "year");
+	if (age === 0) {
+		return today.diff(birth, "month") + " tháng";
 	}
-
 	return age;
 };

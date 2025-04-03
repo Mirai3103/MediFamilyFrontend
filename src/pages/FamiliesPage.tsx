@@ -43,12 +43,10 @@ const createFamilyRequestSchema = z.object({
 		.string()
 		.max(500, { message: "Địa chỉ không được vượt quá 500 ký tự." }),
 
-	phoneNumber: z
-		.string()
-		.regex(/^(\+84|0)[3|5|7|8|9][0-9]{8}$/, {
-			message:
-				"Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam hợp lệ.",
-		}),
+	phoneNumber: z.string().regex(/^(\+84|0)[3|5|7|8|9][0-9]{8}$/, {
+		message:
+			"Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam hợp lệ.",
+	}),
 
 	email: z
 		.string()
@@ -103,8 +101,9 @@ const FamiliesPage = () => {
 		if (!data) {
 			return [];
 		}
+		console.log(data);
 		return data?.filter((family) =>
-			family.familyName.toLowerCase().includes(searchTerm.toLowerCase())
+			family.familyName?.toLowerCase().includes(searchTerm.toLowerCase())
 		);
 	}, [data, searchTerm]);
 

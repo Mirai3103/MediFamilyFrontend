@@ -260,35 +260,26 @@ export default function FamilyInfo({ family }: FamilyInfoProps) {
 									<AvatarImage
 										src={"https://placewaifu.com/image/200"}
 										alt={
-											householder.user?.fullName ||
-											householder.fullName ||
-											""
+											householder.profile?.fullName || ""
 										}
 									/>
 									<AvatarFallback>
-										{householder.user?.fullName?.charAt(
+										{householder.profile?.fullName?.charAt(
 											0
-										) ||
-											householder.fullName?.charAt(0) ||
-											"U"}
+										) || "U"}
 									</AvatarFallback>
 								</Avatar>
 								<div className="flex-1">
 									<p className="font-medium text-base">
-										{householder.user?.fullName ||
-											householder.fullName ||
+										{householder.profile?.fullName ||
 											"Chưa cập nhật"}
 									</p>
 									<p className="text-sm text-muted-foreground">
-										{householder.user?.phoneNumber ||
-											householder.phoneNumber}
-										{(householder.user?.phoneNumber ||
-											householder.phoneNumber) &&
-											(householder.user?.email ||
-												householder.email) &&
+										{householder.profile?.phoneNumber}
+										{householder.profile?.phoneNumber &&
+											householder.profile?.email &&
 											" • "}
-										{householder.user?.email ||
-											householder.email}
+										{householder.profile?.email}
 									</p>
 								</div>
 							</div>

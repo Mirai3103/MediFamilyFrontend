@@ -136,18 +136,18 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 					<Avatar className="h-9 w-9">
 						<AvatarImage
 							src={
-								user?.avatarUrl ||
+								user?.profile?.avatarUrl ||
 								"https://placewaifu.com/image/300/300"
 							}
-							alt={user?.fullName!}
+							alt={user?.profile?.fullName!}
 						/>
 						<AvatarFallback>
-							{user?.fullName?.charAt(0) || "U"}
+							{user?.profile?.fullName?.charAt(0) || "U"}
 						</AvatarFallback>
 					</Avatar>
 					<div className="ml-3 flex-1 min-w-0">
 						<p className="text-sm font-medium truncate">
-							{user?.fullName}
+							{user?.profile?.fullName}
 						</p>
 						<p className="text-xs text-muted-foreground truncate">
 							{user?.email}
@@ -196,18 +196,19 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 								<Avatar className="h-10 w-10">
 									<AvatarImage
 										src={
-											user?.avatarUrl ||
+											user?.profile?.avatarUrl ||
 											"https://placewaifu.com/image/300/300"
 										}
-										alt={user?.fullName}
+										alt={user?.profile?.fullName!}
 									/>
 									<AvatarFallback>
-										{user?.fullName?.charAt(0) || "U"}
+										{user?.profile?.fullName?.charAt(0) ||
+											"U"}
 									</AvatarFallback>
 								</Avatar>
 								<div className="ml-3 flex-1 min-w-0">
 									<p className="text-sm font-medium truncate">
-										{user?.fullName}
+										{user?.profile?.fullName}
 									</p>
 									<p className="text-xs text-muted-foreground truncate">
 										{user?.email}
@@ -317,13 +318,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 							<Avatar className="h-8 w-8">
 								<AvatarImage
 									src={
-										user?.avatarUrl ||
+										user?.profile?.avatarUrl ||
 										"https://placewaifu.com/image/300/300"
 									}
-									alt={user?.fullName}
+									alt={user?.profile?.fullName}
 								/>
 								<AvatarFallback>
-									{user?.fullName?.charAt(0) || "U"}
+									{user?.profile?.fullName?.charAt(0) || "U"}
 								</AvatarFallback>
 							</Avatar>
 						</Button>

@@ -52,8 +52,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { HealthProfile, User as IUser } from "@/models/generated";
-import { useUpdateAvatar } from "@/queries/generated/user-controller/user-controller";
+import { Profile, User as IUser } from "@/models/generated";
+import { useUpdateMyAvatar } from "@/queries/generated/profile-controller/profile-controller";
 import { useBoolean } from "usehooks-ts";
 
 const profileFormSchema = z.object({
@@ -107,10 +107,10 @@ const healthProfileSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 type HealthProfileValues = z.infer<typeof healthProfileSchema>;
 export interface UserProfileProps {
-	profile: IUser;
-	healthProfile: HealthProfile;
+	user: IUser;
+	profile: Profile;
 }
-const UserProfile = ({ profile, healthProfile }: UserProfileProps) => {
+const UserProfile = ({ user, profile }: UserProfileProps) => {
 	const [isEditMode, setIsEditMode] = useState(false);
 	const [isHealthEditMode, setIsHealthEditMode] = useState(false);
 	const [avatarUrl, setAvatarUrl] = useState<string | null>(
@@ -136,13 +136,13 @@ const UserProfile = ({ profile, healthProfile }: UserProfileProps) => {
 
 	// Mock health data
 	const defaultHealthValues: HealthProfileValues = {
-		bloodType: healthProfile.bloodType || "",
-		height: healthProfile.height || 0,
-		weight: healthProfile.weight || 0,
-		allergies: healthProfile.allergies || "Không có",
-		chronicDiseases: healthProfile.chronicDiseases || "Không có",
-		notes: healthProfile.notes || "Không có",
-		healthInsuranceNumber: healthProfile.healthInsuranceNumber || "",
+		bloodType: profile.bloodType || "",
+		height: profile.height || 0,
+		weight: profile.weight || 0,
+		allergies: profile.allergies || "Không có",
+		chronicDiseases: profile.chronicDiseases || "Không có",
+		notes: profile.notes || "Không có",
+		healthInsuranceNumber: profile.healthInsuranceNumber || "",
 	};
 
 	const form = useForm<ProfileFormValues>({
@@ -184,7 +184,7 @@ const UserProfile = ({ profile, healthProfile }: UserProfileProps) => {
 		}
 	};
 	const { mutate: updateAvatar, isPending: isUpdatingAvatar } =
-		useUpdateAvatar({
+		useUpdateMyAvatar({
 			mutation: {
 				onError: (error) => {
 					toast.error("Cập nhật ảnh đại diện thất bại", {
@@ -992,7 +992,7 @@ const UserProfile = ({ profile, healthProfile }: UserProfileProps) => {
 																Số BHYT
 															</p>
 															<p className="text-sm mt-1">
-																{healthProfile.healthInsuranceNumber ||
+																{profile.healthInsuranceNumber ||
 																	"Chưa cập nhật"}
 															</p>
 														</div>
