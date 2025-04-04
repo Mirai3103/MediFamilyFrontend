@@ -1,6 +1,7 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HealthProfileTab from "@/components/user/HealthProfileTab";
 import PersonalInfoSection from "@/components/user/PersonalInfoTab/PersonalInfoSection";
+import RecordTab from "@/components/user/RecordTab";
 import { FamilyDTO, FamilyMemberDTO } from "@/models/generated";
 import { useState } from "react";
 interface FamilyMemberDetailPageProps {
@@ -34,8 +35,9 @@ export default function FamilyMemberDetailPage({
 								Thông tin cá nhân
 							</TabsTrigger>
 							<TabsTrigger value="health">
-								Hồ sơ sức khỏe
+								Thông tin sức khỏe
 							</TabsTrigger>
+							<TabsTrigger value="record">Hồ sơ khám</TabsTrigger>
 						</TabsList>
 					</Tabs>
 					<div className="md:col-span-3">
@@ -45,6 +47,7 @@ export default function FamilyMemberDetailPage({
 						{activeTab === "health" && (
 							<HealthProfileTab profile={member.profile!} />
 						)}
+						{activeTab === "record" && <RecordTab />}
 					</div>
 				</div>
 			</div>
