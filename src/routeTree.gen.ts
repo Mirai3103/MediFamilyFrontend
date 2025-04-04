@@ -20,9 +20,10 @@ import { Route as IndexImport } from './routes/index'
 import { Route as LayoutHomeIndexImport } from './routes/_layout/home/index'
 import { Route as LayoutHomeUserProfileImport } from './routes/_layout/home/user-profile'
 import { Route as LayoutHomeFamiliesIndexImport } from './routes/_layout/home/families/index'
-import { Route as LayoutHomeFamiliesFamilyIdImport } from './routes/_layout/home/families/$familyId'
 import { Route as LayoutHomeFamiliesSharingIndexImport } from './routes/_layout/home/families/sharing/index'
 import { Route as LayoutHomeFamiliesRecordsIndexImport } from './routes/_layout/home/families/records/index'
+import { Route as LayoutHomeFamiliesFamilyIdIndexImport } from './routes/_layout/home/families/$familyId/index'
+import { Route as LayoutHomeFamiliesFamilyIdMembersMemberIdImport } from './routes/_layout/home/families/$familyId/members/$memberId'
 
 // Create/Update Routes
 
@@ -79,14 +80,6 @@ const LayoutHomeFamiliesIndexRoute = LayoutHomeFamiliesIndexImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
-const LayoutHomeFamiliesFamilyIdRoute = LayoutHomeFamiliesFamilyIdImport.update(
-  {
-    id: '/home/families/$familyId',
-    path: '/home/families/$familyId',
-    getParentRoute: () => LayoutRoute,
-  } as any,
-)
-
 const LayoutHomeFamiliesSharingIndexRoute =
   LayoutHomeFamiliesSharingIndexImport.update({
     id: '/home/families/sharing/',
@@ -98,6 +91,20 @@ const LayoutHomeFamiliesRecordsIndexRoute =
   LayoutHomeFamiliesRecordsIndexImport.update({
     id: '/home/families/records/',
     path: '/home/families/records/',
+    getParentRoute: () => LayoutRoute,
+  } as any)
+
+const LayoutHomeFamiliesFamilyIdIndexRoute =
+  LayoutHomeFamiliesFamilyIdIndexImport.update({
+    id: '/home/families/$familyId/',
+    path: '/home/families/$familyId/',
+    getParentRoute: () => LayoutRoute,
+  } as any)
+
+const LayoutHomeFamiliesFamilyIdMembersMemberIdRoute =
+  LayoutHomeFamiliesFamilyIdMembersMemberIdImport.update({
+    id: '/home/families/$familyId/members/$memberId',
+    path: '/home/families/$familyId/members/$memberId',
     getParentRoute: () => LayoutRoute,
   } as any)
 
@@ -161,18 +168,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutHomeIndexImport
       parentRoute: typeof LayoutImport
     }
-    '/_layout/home/families/$familyId': {
-      id: '/_layout/home/families/$familyId'
-      path: '/home/families/$familyId'
-      fullPath: '/home/families/$familyId'
-      preLoaderRoute: typeof LayoutHomeFamiliesFamilyIdImport
-      parentRoute: typeof LayoutImport
-    }
     '/_layout/home/families/': {
       id: '/_layout/home/families/'
       path: '/home/families'
       fullPath: '/home/families'
       preLoaderRoute: typeof LayoutHomeFamiliesIndexImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/home/families/$familyId/': {
+      id: '/_layout/home/families/$familyId/'
+      path: '/home/families/$familyId'
+      fullPath: '/home/families/$familyId'
+      preLoaderRoute: typeof LayoutHomeFamiliesFamilyIdIndexImport
       parentRoute: typeof LayoutImport
     }
     '/_layout/home/families/records/': {
@@ -189,6 +196,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutHomeFamiliesSharingIndexImport
       parentRoute: typeof LayoutImport
     }
+    '/_layout/home/families/$familyId/members/$memberId': {
+      id: '/_layout/home/families/$familyId/members/$memberId'
+      path: '/home/families/$familyId/members/$memberId'
+      fullPath: '/home/families/$familyId/members/$memberId'
+      preLoaderRoute: typeof LayoutHomeFamiliesFamilyIdMembersMemberIdImport
+      parentRoute: typeof LayoutImport
+    }
   }
 }
 
@@ -197,19 +211,22 @@ declare module '@tanstack/react-router' {
 interface LayoutRouteChildren {
   LayoutHomeUserProfileRoute: typeof LayoutHomeUserProfileRoute
   LayoutHomeIndexRoute: typeof LayoutHomeIndexRoute
-  LayoutHomeFamiliesFamilyIdRoute: typeof LayoutHomeFamiliesFamilyIdRoute
   LayoutHomeFamiliesIndexRoute: typeof LayoutHomeFamiliesIndexRoute
+  LayoutHomeFamiliesFamilyIdIndexRoute: typeof LayoutHomeFamiliesFamilyIdIndexRoute
   LayoutHomeFamiliesRecordsIndexRoute: typeof LayoutHomeFamiliesRecordsIndexRoute
   LayoutHomeFamiliesSharingIndexRoute: typeof LayoutHomeFamiliesSharingIndexRoute
+  LayoutHomeFamiliesFamilyIdMembersMemberIdRoute: typeof LayoutHomeFamiliesFamilyIdMembersMemberIdRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutHomeUserProfileRoute: LayoutHomeUserProfileRoute,
   LayoutHomeIndexRoute: LayoutHomeIndexRoute,
-  LayoutHomeFamiliesFamilyIdRoute: LayoutHomeFamiliesFamilyIdRoute,
   LayoutHomeFamiliesIndexRoute: LayoutHomeFamiliesIndexRoute,
+  LayoutHomeFamiliesFamilyIdIndexRoute: LayoutHomeFamiliesFamilyIdIndexRoute,
   LayoutHomeFamiliesRecordsIndexRoute: LayoutHomeFamiliesRecordsIndexRoute,
   LayoutHomeFamiliesSharingIndexRoute: LayoutHomeFamiliesSharingIndexRoute,
+  LayoutHomeFamiliesFamilyIdMembersMemberIdRoute:
+    LayoutHomeFamiliesFamilyIdMembersMemberIdRoute,
 }
 
 const LayoutRouteWithChildren =
@@ -224,10 +241,11 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/home/user-profile': typeof LayoutHomeUserProfileRoute
   '/home': typeof LayoutHomeIndexRoute
-  '/home/families/$familyId': typeof LayoutHomeFamiliesFamilyIdRoute
   '/home/families': typeof LayoutHomeFamiliesIndexRoute
+  '/home/families/$familyId': typeof LayoutHomeFamiliesFamilyIdIndexRoute
   '/home/families/records': typeof LayoutHomeFamiliesRecordsIndexRoute
   '/home/families/sharing': typeof LayoutHomeFamiliesSharingIndexRoute
+  '/home/families/$familyId/members/$memberId': typeof LayoutHomeFamiliesFamilyIdMembersMemberIdRoute
 }
 
 export interface FileRoutesByTo {
@@ -239,10 +257,11 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/home/user-profile': typeof LayoutHomeUserProfileRoute
   '/home': typeof LayoutHomeIndexRoute
-  '/home/families/$familyId': typeof LayoutHomeFamiliesFamilyIdRoute
   '/home/families': typeof LayoutHomeFamiliesIndexRoute
+  '/home/families/$familyId': typeof LayoutHomeFamiliesFamilyIdIndexRoute
   '/home/families/records': typeof LayoutHomeFamiliesRecordsIndexRoute
   '/home/families/sharing': typeof LayoutHomeFamiliesSharingIndexRoute
+  '/home/families/$familyId/members/$memberId': typeof LayoutHomeFamiliesFamilyIdMembersMemberIdRoute
 }
 
 export interface FileRoutesById {
@@ -255,10 +274,11 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/_layout/home/user-profile': typeof LayoutHomeUserProfileRoute
   '/_layout/home/': typeof LayoutHomeIndexRoute
-  '/_layout/home/families/$familyId': typeof LayoutHomeFamiliesFamilyIdRoute
   '/_layout/home/families/': typeof LayoutHomeFamiliesIndexRoute
+  '/_layout/home/families/$familyId/': typeof LayoutHomeFamiliesFamilyIdIndexRoute
   '/_layout/home/families/records/': typeof LayoutHomeFamiliesRecordsIndexRoute
   '/_layout/home/families/sharing/': typeof LayoutHomeFamiliesSharingIndexRoute
+  '/_layout/home/families/$familyId/members/$memberId': typeof LayoutHomeFamiliesFamilyIdMembersMemberIdRoute
 }
 
 export interface FileRouteTypes {
@@ -272,10 +292,11 @@ export interface FileRouteTypes {
     | '/register'
     | '/home/user-profile'
     | '/home'
-    | '/home/families/$familyId'
     | '/home/families'
+    | '/home/families/$familyId'
     | '/home/families/records'
     | '/home/families/sharing'
+    | '/home/families/$familyId/members/$memberId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -286,10 +307,11 @@ export interface FileRouteTypes {
     | '/register'
     | '/home/user-profile'
     | '/home'
-    | '/home/families/$familyId'
     | '/home/families'
+    | '/home/families/$familyId'
     | '/home/families/records'
     | '/home/families/sharing'
+    | '/home/families/$familyId/members/$memberId'
   id:
     | '__root__'
     | '/'
@@ -300,10 +322,11 @@ export interface FileRouteTypes {
     | '/register'
     | '/_layout/home/user-profile'
     | '/_layout/home/'
-    | '/_layout/home/families/$familyId'
     | '/_layout/home/families/'
+    | '/_layout/home/families/$familyId/'
     | '/_layout/home/families/records/'
     | '/_layout/home/families/sharing/'
+    | '/_layout/home/families/$familyId/members/$memberId'
   fileRoutesById: FileRoutesById
 }
 
@@ -351,10 +374,11 @@ export const routeTree = rootRoute
       "children": [
         "/_layout/home/user-profile",
         "/_layout/home/",
-        "/_layout/home/families/$familyId",
         "/_layout/home/families/",
+        "/_layout/home/families/$familyId/",
         "/_layout/home/families/records/",
-        "/_layout/home/families/sharing/"
+        "/_layout/home/families/sharing/",
+        "/_layout/home/families/$familyId/members/$memberId"
       ]
     },
     "/about": {
@@ -377,12 +401,12 @@ export const routeTree = rootRoute
       "filePath": "_layout/home/index.tsx",
       "parent": "/_layout"
     },
-    "/_layout/home/families/$familyId": {
-      "filePath": "_layout/home/families/$familyId.tsx",
-      "parent": "/_layout"
-    },
     "/_layout/home/families/": {
       "filePath": "_layout/home/families/index.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/home/families/$familyId/": {
+      "filePath": "_layout/home/families/$familyId/index.tsx",
       "parent": "/_layout"
     },
     "/_layout/home/families/records/": {
@@ -391,6 +415,10 @@ export const routeTree = rootRoute
     },
     "/_layout/home/families/sharing/": {
       "filePath": "_layout/home/families/sharing/index.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/home/families/$familyId/members/$memberId": {
+      "filePath": "_layout/home/families/$familyId/members/$memberId.tsx",
       "parent": "/_layout"
     }
   }

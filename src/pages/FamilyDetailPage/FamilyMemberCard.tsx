@@ -12,6 +12,16 @@ import {
 	DropdownMenuTrigger,
 	DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import {
 	Tooltip,
@@ -28,24 +38,35 @@ import {
 	FiMoreVertical,
 	FiCalendar,
 	FiUser,
-	FiHeart,
 	FiMapPin,
 	FiFileText,
+	FiTrash2,
 } from "react-icons/fi";
+import {
+	getGetMembersByFamilyIdQueryKey,
+	useDeleteMemberFromFamily,
+} from "@/queries/generated/family-member-controller/family-member-controller";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { useRouter } from "@tanstack/react-router";
 
 interface MemberCardProps {
 	member: NonNullable<Family["familyMembers"]>[0];
 	isHouseholder: boolean;
 	onViewMedicalProfile?: () => void;
 	onEditMember?: () => void;
+	isCurrentUserHouseholder?: boolean;
 }
 
 export const MemberCard = ({
 	member,
 	isHouseholder,
+	isCurrentUserHouseholder,
 	onViewMedicalProfile,
 	onEditMember,
 }: MemberCardProps) => {
+	const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 	const age = calculateAge(member.profile?.dateOfBirth!);
 	const fullName = member.profile?.fullName;
 	const email = member.profile?.email;
@@ -67,34 +88,34 @@ export const MemberCard = ({
 		);
 	};
 
-	// Định dạng gender để hiển thị thân thiện hơn
-	const formatGender = (gender: ProfileGender) => {
-		if (!gender) return "Chưa cập nhật";
-		switch (gender.toUpperCase()) {
-			case "MALE":
-				return "Nam";
-			case "FEMALE":
-				return "Nữ";
-			default:
-				return gender;
+	const queryClient = useQueryClient();
+	const router = useRouter();
+	const { mutate, isPending } = useDeleteMemberFromFamily({
+		mutation: {
+			onError: (error: any) => {
+				toast.error(error.response?.data?.message || error.message);
+			},
+			onSuccess: () => {
+				toast.success("Xóa thành viên thành công");
+				queryClient.invalidateQueries({
+					queryKey: getGetMembersByFamilyIdQueryKey(member.familyId!),
+				});
+				router.invalidate();
+
+				setConfirmDeleteOpen(false);
+			},
+		},
+	});
+
+	const handleDeleteMember = () => {
+		if (isHouseholder) {
+			toast.error("Không thể xóa chủ hộ");
+			return;
 		}
-	};
-
-	// Định dạng relationship để hiển thị thân thiện hơn
-	const formatRelationship = (relationship: string) => {
-		if (!relationship) return "";
-
-		const relationshipMap = {
-			"Chủ hộ": "Chủ hộ",
-			SPOUSE: "Vợ/Chồng",
-			CHILD: "Con",
-			PARENT: "Bố/Mẹ",
-			SIBLING: "Anh/Chị/Em",
-			GRANDPARENT: "Ông/Bà",
-			OTHER: "Khác",
-		};
-
-		return relationshipMap[relationship.toUpperCase()] || relationship;
+		mutate({
+			id: member.familyId!,
+			memberId: member.profile?.id!,
+		});
 	};
 
 	return (
@@ -129,7 +150,7 @@ export const MemberCard = ({
 						{fullName || "Chưa cập nhật"}
 					</h3>
 					<p className="text-sm text-muted-foreground">
-						{formatRelationship(relationship)}
+						{relationship}
 					</p>
 				</div>
 
@@ -219,10 +240,10 @@ export const MemberCard = ({
 						onClick={onViewMedicalProfile}
 					>
 						<FiFileText className="h-3.5 w-3.5 mr-1" />
-						Hồ sơ y tế
+						Hồ sơ thành viên
 					</Button>
 
-					{isHouseholder && (
+					{isCurrentUserHouseholder && (
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
 								<Button
@@ -239,8 +260,15 @@ export const MemberCard = ({
 									Chỉnh sửa thông tin
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem className="text-destructive">
-									<FiHeart className="mr-2 h-4 w-4" />
+								<DropdownMenuItem
+									className="text-destructive"
+									disabled={isHouseholder}
+									onClick={() =>
+										!isHouseholder &&
+										setConfirmDeleteOpen(true)
+									}
+								>
+									<FiTrash2 className="mr-2 h-4 w-4" />
 									Xóa thành viên
 								</DropdownMenuItem>
 							</DropdownMenuContent>
@@ -248,6 +276,35 @@ export const MemberCard = ({
 					)}
 				</div>
 			</CardFooter>
+
+			{/* Delete Confirmation Dialog */}
+			<AlertDialog
+				open={confirmDeleteOpen}
+				onOpenChange={setConfirmDeleteOpen}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>
+							Xác nhận xóa thành viên
+						</AlertDialogTitle>
+						<AlertDialogDescription>
+							Bạn có chắc chắn muốn xóa thành viên{" "}
+							<span className="font-semibold">{fullName}</span>{" "}
+							khỏi hộ gia đình? Hành động này không thể hoàn tác.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Hủy</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={handleDeleteMember}
+							disabled={isPending}
+							className="bg-destructive hover:bg-destructive/90"
+						>
+							{isPending ? "Đang xóa..." : "Xóa thành viên"}
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</Card>
 	);
 };
@@ -260,4 +317,15 @@ const calculateAge = (birthDate: string) => {
 		return today.diff(birth, "month") + " tháng";
 	}
 	return age;
+};
+const formatGender = (gender: ProfileGender) => {
+	if (!gender) return "Chưa cập nhật";
+	switch (gender.toUpperCase()) {
+		case "MALE":
+			return "Nam";
+		case "FEMALE":
+			return "Nữ";
+		default:
+			return gender;
+	}
 };

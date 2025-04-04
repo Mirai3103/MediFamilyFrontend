@@ -186,7 +186,7 @@ const FamiliesPage = () => {
 											onClick={() =>
 												setIsCreateModalOpen(true)
 											}
-											className="mt-4 bg-health-blue hover:bg-health-blue/90"
+											className="mt-4 "
 										>
 											<Plus className="mr-2 h-4 w-4" />
 											Tạo gia đình mới

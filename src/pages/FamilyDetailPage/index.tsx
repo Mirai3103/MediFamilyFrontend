@@ -19,6 +19,7 @@ import { MemberCard } from "./FamilyMemberCard";
 import FamilyInfo from "./FamilyInfo";
 import AddMemberForm from "./AddMemberForm";
 import useUserStore from "@/stores/authStore";
+import { useNavigate } from "@tanstack/react-router";
 
 interface FamilyDetailPageProps {
 	family: Family;
@@ -36,6 +37,7 @@ const FamilyDetailPage = ({ family }: FamilyDetailPageProps) => {
 	const handleUpdateFamily = (updatedFamily: any) => {
 		setIsEditFamilyDialogOpen(false);
 	};
+	const navigate = useNavigate();
 
 	return (
 		<div>
@@ -89,6 +91,14 @@ const FamilyDetailPage = ({ family }: FamilyDetailPageProps) => {
 								key={member.id}
 								member={member}
 								isHouseholder={member.relationship === "Chủ hộ"}
+								isCurrentUserHouseholder={
+									currentUserProfileId === family.owner.id
+								}
+								onViewMedicalProfile={() =>
+									navigate({
+										to: `/home/families/${family.id}/members/${member.id}`,
+									})
+								}
 							/>
 						))}
 					</div>
