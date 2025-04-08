@@ -8,19 +8,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Download, Edit } from "lucide-react";
-
-interface MedicalRecord {
-	id: number;
-	date: string;
-	title: string;
-	doctor: string;
-	type: string;
-	description: string;
-	memberId: number | null;
-}
+import { MedicalRecordDto } from "@/models/generated/medicalRecordDto";
 
 interface MedicalRecordCardProps {
-	record: MedicalRecord;
+	record: MedicalRecordDto;
 	memberName: string;
 }
 
@@ -46,12 +37,12 @@ const MedicalRecordCard = ({ record, memberName }: MedicalRecordCardProps) => {
 			<CardHeader className="pb-2">
 				<div className="flex justify-between items-start">
 					<CardTitle className="text-lg">{record.title}</CardTitle>
-					<Badge className={getBadgeClass(record.type)}>
+					<Badge className={getBadgeClass(record.type!)}>
 						{record.type}
 					</Badge>
 				</div>
 				<div className="text-sm text-gray-500 flex justify-between items-center">
-					<span>Date: {record.date}</span>
+					<span>Date: {record.createdAt}</span>
 					<span>For: {memberName}</span>
 				</div>
 			</CardHeader>
@@ -59,13 +50,11 @@ const MedicalRecordCard = ({ record, memberName }: MedicalRecordCardProps) => {
 				<div className="space-y-3">
 					<div className="text-sm">
 						<div className="font-medium mb-1">Doctor</div>
-						<div className="text-gray-600">{record.doctor}</div>
+						<div className="text-gray-600">{record.doctorName}</div>
 					</div>
 					<div className="text-sm">
 						<div className="font-medium mb-1">Description</div>
-						<div className="text-gray-600">
-							{record.description}
-						</div>
+						<div className="text-gray-600">{record.notes}</div>
 					</div>
 				</div>
 			</CardContent>
