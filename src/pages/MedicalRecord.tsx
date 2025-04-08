@@ -256,7 +256,7 @@ const FamilyMedicalRecords = () => {
 										<Download className="mr-2 h-4 w-4" />
 										Export Records
 									</Button>
-									<Button className="bg-health-blue hover:bg-health-blue/90">
+									<Button className="">
 										<Plus className="mr-2 h-4 w-4" />
 										Add Record
 									</Button>
@@ -574,7 +574,7 @@ const FamilyMedicalRecords = () => {
 												Add new records or adjust your
 												search criteria
 											</p>
-											<Button className="mt-4 bg-health-blue hover:bg-health-blue/90">
+											<Button className="mt-4 ">
 												<Plus className="mr-2 h-4 w-4" />
 												Add New Record
 											</Button>
@@ -674,7 +674,7 @@ const FamilyMedicalRecords = () => {
 										)}
 									</CardContent>
 									<CardFooter className="flex justify-end">
-										<Button className="bg-health-blue hover:bg-health-blue/90">
+										<Button className="">
 											<Plus className="mr-2 h-4 w-4" />
 											Add Medication
 										</Button>
@@ -779,7 +779,7 @@ const FamilyMedicalRecords = () => {
 										)}
 									</CardContent>
 									<CardFooter className="flex justify-end">
-										<Button className="bg-health-blue hover:bg-health-blue/90">
+										<Button className="">
 											<Plus className="mr-2 h-4 w-4" />
 											Schedule Appointment
 										</Button>

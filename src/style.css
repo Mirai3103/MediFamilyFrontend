@@ -114,7 +114,7 @@
 /* Health status specific colors for visual indicators */
 :root {
 	--health-normal: oklch(
-		0.65 0.2 130
+		0.55 0.18 250
 	); /* Green for normal/healthy readings */
 	--health-caution: oklch(0.7 0.2 80); /* Yellow-orange for caution */
 	--health-warning: oklch(0.7 0.25 45); /* Orange for warnings */

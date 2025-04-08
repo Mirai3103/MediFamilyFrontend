@@ -260,7 +260,7 @@ const RecordSharing = () => {
 									onOpenChange={setShowDialog}
 								>
 									<DialogTrigger asChild>
-										<Button className="bg-health-blue hover:bg-health-blue/90">
+										<Button className="">
 											<UserPlus className="mr-2 h-4 w-4" />
 											Share Medical Records
 										</Button>
@@ -758,7 +758,7 @@ const RecordSharing = () => {
 													onClick={() =>
 														setShowDialog(true)
 													}
-													className="mt-4 bg-health-blue hover:bg-health-blue/90"
+													className="mt-4 "
 												>
 													<UserPlus className="mr-2 h-4 w-4" />
 													Share Medical Records

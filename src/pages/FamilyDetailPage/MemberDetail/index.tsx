@@ -19,8 +19,8 @@ export default function FamilyMemberDetailPage({
 			<div className="space-y-6">
 				<div className="flex flex-col md:flex-row items-start md:items-center md:justify-between">
 					<h1 className="text-2xl font-bold">
-						Hồ sơ của thành viên {member.profile?.fullName} trong
-						gia đình {family.familyName}
+						Hồ sơ của thành viên <i>{member.profile?.fullName}</i>{" "}
+						trong gia đình <i>{family.familyName}</i>
 					</h1>
 				</div>
 				<div className="flex flex-col gap-y-2">
@@ -47,7 +47,9 @@ export default function FamilyMemberDetailPage({
 						{activeTab === "health" && (
 							<HealthProfileTab profile={member.profile!} />
 						)}
-						{activeTab === "record" && <RecordTab />}
+						{activeTab === "record" && (
+							<RecordTab member={member!} />
+						)}
 					</div>
 				</div>
 			</div>
