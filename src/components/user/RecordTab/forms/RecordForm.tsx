@@ -29,6 +29,11 @@ import {
 import { DatePicker } from "@/components/ui/date-picker";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+	getGetMedicalRecordQueryKey,
+	useCreateMedicalRecord,
+} from "@/queries/generated/medical-record-controller/medical-record-controller";
+import { useQueryClient } from "@tanstack/react-query";
 interface IRecordFormProps {
 	type: "edit" | "add";
 	recordId?: number;
@@ -84,6 +89,7 @@ type MedicalRecordFormValues = z.infer<typeof medicalRecordFormSchema>;
 export default function RecordForm({
 	type,
 	recordId,
+	profileId,
 	onDone,
 }: IRecordFormProps) {
 	const form = useForm<MedicalRecordFormValues>({
@@ -99,20 +105,38 @@ export default function RecordForm({
 			isFollowup: false,
 		},
 	});
+	const queryClient = useQueryClient();
+	const { mutate } = useCreateMedicalRecord({
+		mutation: {
+			onSuccess: (data) => {
+				form.reset();
+				toast("Thêm hồ sơ thành công", {
+					description: "Hồ sơ khám đã được thêm vào hệ thống",
+				});
+				queryClient.invalidateQueries({
+					queryKey: getGetMedicalRecordQueryKey(profileId),
+				});
+				onDone?.(true);
+			},
+			onError: (error) => {
+				toast("Lỗi", {
+					description: error.response?.data?.message || error.message,
+				});
+				onDone?.(false);
+			},
+		},
+	});
 	const onSubmit = async (data: MedicalRecordFormValues) => {
-		try {
-			console.log("Form data:", data);
-			form.reset();
-			toast("Thêm hồ sơ thành công", {
-				description: "Hồ sơ khám đã được thêm vào hệ thống",
-			});
-			onDone?.(true);
-		} catch (error) {
-			toast("Lỗi", {
-				description: "Không thể thêm hồ sơ khám. Vui lòng thử lại sau.",
-			});
-			onDone?.(false);
-		}
+		mutate({
+			data: {
+				...data,
+				visitDate: data.visitDate.toISOString(),
+				followupDate: data.isFollowup
+					? data.followupDate?.toISOString()
+					: undefined,
+				profileId: profileId,
+			},
+		});
 	};
 
 	return (

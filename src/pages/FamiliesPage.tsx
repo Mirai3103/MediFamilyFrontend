@@ -214,7 +214,7 @@ const FamiliesPage = () => {
 												Cập nhật:{" "}
 												{dayjs(
 													family.updatedAt ||
-														undefined
+														family.createdAt
 												).format("DD/MM/YYYY")}
 											</CardDescription>
 										</div>

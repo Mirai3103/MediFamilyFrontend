@@ -105,7 +105,9 @@ const MedicalRecordCard = ({ record }: MedicalRecordCardProps) => {
 			<CardFooter className="flex justify-between py-3 ">
 				<div className="text-xs text-gray-500">
 					Cập nhật:{" "}
-					{dayjs(record.updatedAt).format("DD/MM/YYYY HH:mm")}
+					{dayjs(record.updatedAt || record.createdAt).format(
+						"DD/MM/YYYY HH:mm"
+					)}
 				</div>
 				<div className="flex space-x-2">
 					<Button
