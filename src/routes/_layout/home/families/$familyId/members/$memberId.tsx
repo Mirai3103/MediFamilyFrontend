@@ -12,7 +12,7 @@ export const Route = createFileRoute(
 			Number(ctx.params.familyId),
 			Number(ctx.params.memberId)
 		);
-		const p2 = getFamily(ctx.params.familyId);
+		const p2 = getFamily(Number(ctx.params.familyId));
 		const [member, family] = await Promise.all([p1, p2]);
 		return {
 			member,

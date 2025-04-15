@@ -38,7 +38,7 @@ const useUserStore = create<userState>((set) => ({
 				isLoading: false,
 			});
 		} catch (error) {
-			if (axios.isAxiosError(error) && error.response?.status === 401) {
+			if (axios.isAxiosError(error)) {
 				set({
 					isAuthenticated: false,
 					profile: null,

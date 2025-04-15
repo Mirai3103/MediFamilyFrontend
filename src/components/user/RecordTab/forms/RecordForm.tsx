@@ -32,8 +32,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
 	getGetMedicalRecordQueryKey,
 	useCreateMedicalRecord,
+	useGetMedicalRecord,
 } from "@/queries/generated/medical-record-controller/medical-record-controller";
 import { useQueryClient } from "@tanstack/react-query";
+import dayjs from "dayjs";
+import React from "react";
 interface IRecordFormProps {
 	type: "edit" | "add";
 	recordId?: number;
@@ -106,6 +109,21 @@ export default function RecordForm({
 		},
 	});
 	const queryClient = useQueryClient();
+	const { data } = useGetMedicalRecord(recordId!, {
+		query: {
+			enabled: type === "edit" && !!recordId,
+		},
+	});
+	React.useEffect(() => {
+		console.log("data", data);
+		if (!data) return data;
+		console.log("reseting form", data);
+		form.reset({
+			...data,
+			visitDate: dayjs(data.visitDate).toDate(),
+			followupDate: dayjs(data.followupDate).toDate(),
+		});
+	}, [data, form]);
 	const { mutate } = useCreateMedicalRecord({
 		mutation: {
 			onSuccess: (data) => {
@@ -114,7 +132,7 @@ export default function RecordForm({
 					description: "Hồ sơ khám đã được thêm vào hệ thống",
 				});
 				queryClient.invalidateQueries({
-					queryKey: getGetMedicalRecordQueryKey(profileId),
+					queryKey: getGetMedicalRecordQueryKey(profileId!),
 				});
 				onDone?.(true);
 			},

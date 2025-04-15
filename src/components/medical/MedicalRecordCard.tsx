@@ -11,13 +11,14 @@ import {
 	Calendar,
 	Clipboard,
 	Download,
-	Edit,
+	Eye,
 	FileText,
 	MapPin,
 	User2,
 } from "lucide-react";
 import { MedicalRecordDto } from "@/models/generated/medicalRecordDto";
 import dayjs from "dayjs";
+import { Link } from "@tanstack/react-router";
 
 interface MedicalRecordCardProps {
 	record: MedicalRecordDto;
@@ -114,9 +115,17 @@ const MedicalRecordCard = ({ record }: MedicalRecordCardProps) => {
 						variant="ghost"
 						size="sm"
 						className="text-gray-600 hover:bg-gray-100"
+						asChild
 					>
-						<Edit className="mr-1.5 h-3.5 w-3.5" />
-						Chỉnh sửa
+						<Link
+							to="/home/records/$id/prescription"
+							params={{
+								id: record.id!.toString()!,
+							}}
+						>
+							<Eye className="mr-1.5 h-3.5 w-3.5" />
+							Chi tiết
+						</Link>
 					</Button>
 					<Button
 						variant="default"

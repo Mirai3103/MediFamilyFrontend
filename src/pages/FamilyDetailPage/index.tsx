@@ -20,6 +20,7 @@ import FamilyInfo from "./FamilyInfo";
 import AddMemberForm from "./AddMemberForm";
 import useUserStore from "@/stores/authStore";
 import { useNavigate } from "@tanstack/react-router";
+import { ShareDrawer } from "@/components/share-drawer";
 
 interface FamilyDetailPageProps {
 	family: Family;
@@ -62,7 +63,9 @@ const FamilyDetailPage = ({ family }: FamilyDetailPageProps) => {
 				<TabsContent value="members" className="space-y-6">
 					{/* Thêm thành viên mới */}
 					{family.owner.id === currentUserProfileId && (
-						<div className="flex justify-end">
+						<div className="flex gap-x-2 justify-end">
+							<ShareDrawer type="family" />
+
 							<Dialog
 								open={isAddMemberDialogOpen}
 								onOpenChange={setIsAddMemberDialogOpen}
@@ -126,13 +129,6 @@ const FamilyDetailPage = ({ family }: FamilyDetailPageProps) => {
 	);
 };
 
-// Component for displaying a family member card
-
-// Helper function to calculate age from birth date
-
-// Form component for adding a new family member
-
-// Form component for editing family information
 const EditFamilyForm = ({ family, onSubmit, onCancel }) => {
 	const [formData, setFormData] = useState({
 		name: family.name,
