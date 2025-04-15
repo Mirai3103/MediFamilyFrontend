@@ -64,7 +64,7 @@ const FamilyDetailPage = ({ family }: FamilyDetailPageProps) => {
 					{/* Thêm thành viên mới */}
 					{family.owner.id === currentUserProfileId && (
 						<div className="flex gap-x-2 justify-end">
-							<ShareDrawer type="family" />
+							<ShareDrawer type="family" familyId={family.id!} />
 
 							<Dialog
 								open={isAddMemberDialogOpen}

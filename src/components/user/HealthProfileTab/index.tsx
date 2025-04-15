@@ -5,17 +5,16 @@ import {
 	CardTitle,
 	CardDescription,
 	CardContent,
-	CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pencil, PlusCircle, ChevronRight } from "lucide-react";
-import { Profile } from "@/models/generated";
+import { Pencil } from "lucide-react";
+import { ProfileDTO } from "@/models/generated";
 import HealthProfileForm from "./HealthProfileForm";
 import HealthProfileDisplay from "./HealthProfileDisplay";
 import { toast } from "sonner";
 
 interface HealthProfileTabProps {
-	profile: Profile;
+	profile: ProfileDTO;
 }
 
 const HealthProfileTab = ({ profile }: HealthProfileTabProps) => {
@@ -62,7 +61,7 @@ const HealthProfileTab = ({ profile }: HealthProfileTabProps) => {
 				)}
 			</CardContent>
 
-			<CardFooter className="flex justify-between border-t p-4">
+			{/* <CardFooter className="flex justify-between border-t p-4">
 				<Button variant="outline" className="flex items-center">
 					<PlusCircle className="mr-2 h-4 w-4" />
 					Thêm lịch sử khám bệnh
@@ -71,7 +70,7 @@ const HealthProfileTab = ({ profile }: HealthProfileTabProps) => {
 					Xem báo cáo sức khỏe
 					<ChevronRight className="ml-2 h-4 w-4" />
 				</Button>
-			</CardFooter>
+			</CardFooter> */}
 		</Card>
 	);
 };

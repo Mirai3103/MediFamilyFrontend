@@ -1,3 +1,7 @@
+import { useState } from "react";
+import { format } from "date-fns";
+import dayjs from "dayjs";
+import { FiShare2, FiChevronRight } from "react-icons/fi";
 import {
 	Drawer,
 	DrawerContent,
@@ -8,6 +12,7 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
 	Form,
 	FormControl,
@@ -16,11 +21,12 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import {
 	Select,
 	SelectContent,
@@ -29,51 +35,102 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { format } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/components/ui/popover";
-import { FiShare2, FiChevronRight } from "react-icons/fi";
 import { Card } from "@/components/ui/card";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-// Cập nhật schema để lưu trữ quyền cho từng loại thông tin
+// Giả sử bạn có các component Tabs được export từ đường dẫn tương tự
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
+import { toast } from "sonner";
+import {
+	getGetAllShareProfilesQueryKey,
+	useCreateShareProfile,
+	useDeleteShareProfile,
+	useGetAllShareProfiles,
+} from "@/queries/generated/share-profile-controller/share-profile-controller";
+import {
+	SharePermissionDtoPermissionTypesItem,
+	SharePermissionDtoResourceType,
+	ShareProfileDtoShareType,
+} from "@/models/generated";
+import { useQueryClient } from "@tanstack/react-query";
+
+// Schema của form
 const formSchema = z.object({
-	profileId: z.string().min(1, "Chọn thành viên"),
+	profileId: z.coerce.number().nullish(),
 	accessType: z.enum(["link", "email"]),
 	doctorEmail: z.string().email().optional(),
 	sharedData: z
 		.array(
 			z.object({
-				field: z.string(),
-				permissions: z.array(z.enum(["READ", "ADD", "UPDATE"])),
+				field: z.nativeEnum(SharePermissionDtoResourceType),
+				permissions: z.array(
+					z.nativeEnum(SharePermissionDtoPermissionTypesItem)
+				),
 			})
 		)
 		.min(1, "Chọn ít nhất một loại thông tin để chia sẻ"),
 	reason: z.string().optional(),
 	expiresAt: z.date(),
 });
-
+type PermissionType = SharePermissionDtoPermissionTypesItem;
+type ShareFieldType = SharePermissionDtoResourceType;
 type ShareFormType = z.infer<typeof formSchema>;
+
+// Dữ liệu để hiển thị thông tin mỗi loại share
+const dataFields: Record<SharePermissionDtoResourceType, string> = {
+	[SharePermissionDtoResourceType.PROFILE]: "Hồ sơ y tế cơ bản",
+	[SharePermissionDtoResourceType.MEDICAL_RECORD]: "Lịch sử khám bệnh",
+	[SharePermissionDtoResourceType.FILE_DOCUMENT]: "Tài liệu y tế",
+	[SharePermissionDtoResourceType.PRESCRIPTION]: "Đơn thuốc",
+	[SharePermissionDtoResourceType.VACCINATION]: "Lịch sử tiêm ngừa",
+};
+
+// Kiểu cho mỗi record chia sẻ trong danh sách (giả sử mỗi record có các thông tin tối thiểu sau)
+type ShareRecord = {
+	id: number;
+	shareType: ShareProfileDtoShareType;
+	expiresAt: string;
+	reason?: string;
+	invitedEmails?: string[];
+	sharedData?: { field: ShareFieldType; permissions: PermissionType[] }[];
+};
 
 export function ShareDrawer({
 	type = "family",
+	familyId,
+	memberId,
 }: {
 	type?: "family" | "member";
+	familyId: number;
+	memberId?: number;
 }) {
 	const [open, setOpen] = useState(false);
-
-	// Danh sách các trường thông tin có thể chia sẻ
-	const dataFields = [
-		"Hồ sơ y tế cơ bản",
-		"Lịch sử khám bệnh",
-		"Đơn thuốc",
-		"Lịch sử tiêm ngừa",
-		"Tài liệu y tế",
-	];
-
+	// Danh sách chia sẻ (ví dụ khởi tạo rỗng, bạn có thể lấy dữ liệu từ API)
+	const { data: shareList } = useGetAllShareProfiles({
+		familyId: familyId,
+		memberId: memberId,
+	});
+	const client = useQueryClient();
+	const { mutate: deleteShare } = useDeleteShareProfile({
+		mutation: {
+			onSuccess: () => {
+				toast.success("Xoá chia sẻ thành công!");
+				client.invalidateQueries({
+					queryKey: getGetAllShareProfilesQueryKey({
+						familyId: familyId,
+						memberId: memberId,
+					}),
+				});
+			},
+			onError: () => {
+				toast.error("Xoá chia sẻ thất bại!");
+			},
+		},
+	});
+	// Sử dụng hook form cho form tạo chia sẻ
 	const form = useForm<ShareFormType>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -83,23 +140,58 @@ export function ShareDrawer({
 		},
 	});
 
+	const { mutate } = useCreateShareProfile({
+		mutation: {
+			onSuccess: () => {
+				toast.success("Chia sẻ hồ sơ thành công!");
+				client.invalidateQueries({
+					queryKey: getGetAllShareProfilesQueryKey({
+						familyId: familyId,
+						memberId: memberId,
+					}),
+				});
+				form.reset();
+			},
+			onError: () => {
+				toast.error("Chia sẻ hồ sơ thất bại!");
+			},
+		},
+	});
+
 	const onSubmit = (values: ShareFormType) => {
 		console.log("Share form values:", values);
-		// TODO: Call backend API to create ShareRequest
+		mutate({
+			data: {
+				invitedEmails:
+					values.accessType === "email" ? [values.doctorEmail!] : [],
+				expiresAt: dayjs(values.expiresAt).format(
+					"YYYY-MM-DDTHH:mm:ss"
+				),
+				reason: values.reason,
+				memberId: type === "member" ? values.profileId! : undefined,
+				familyId: familyId,
+				sharePermissions: values.sharedData.map((item) => ({
+					permissionTypes: item.permissions.map(
+						(perm) => perm as SharePermissionDtoPermissionTypesItem
+					),
+					resourceType: item.field as SharePermissionDtoResourceType,
+				})),
+				shareType:
+					values.accessType === "link"
+						? ShareProfileDtoShareType.AnyOneWithLink
+						: ShareProfileDtoShareType.OnlyInvitedPeople,
+			},
+		});
 		setOpen(false);
 	};
 
-	// Hàm kiểm tra trạng thái của checkbox
-	const isFieldSelected = (fieldName: string) => {
-		return form
-			.watch("sharedData")
-			.some((item) => item.field === fieldName);
-	};
+	// Các hàm xử lý trong form tạo chia sẻ
+	const isFieldSelected = (fieldName: string) =>
+		form.watch("sharedData").some((item) => item.field === fieldName);
 
-	// Hàm kiểm tra quyền của một trường
 	const hasPermission = (
-		fieldName: string,
-		permission: "READ" | "ADD" | "UPDATE"
+		fieldName: ShareFieldType,
+		permission: PermissionType
 	) => {
 		const fieldData = form
 			.watch("sharedData")
@@ -107,10 +199,9 @@ export function ShareDrawer({
 		return fieldData?.permissions.includes(permission);
 	};
 
-	// Hàm cập nhật quyền cho một trường
 	const togglePermission = (
-		fieldName: string,
-		permission: "READ" | "ADD" | "UPDATE"
+		fieldName: ShareFieldType,
+		permission: PermissionType
 	) => {
 		const currentSharedData = form.getValues("sharedData");
 		const fieldIndex = currentSharedData.findIndex(
@@ -124,16 +215,13 @@ export function ShareDrawer({
 				{ field: fieldName, permissions: [permission] },
 			]);
 		} else {
-			// Nếu trường đã có, cập nhật quyền
 			const fieldData = currentSharedData[fieldIndex];
 			const permissionIndex = fieldData.permissions.indexOf(permission);
 
 			let updatedPermissions;
 			if (permissionIndex === -1) {
-				// Thêm quyền mới
 				updatedPermissions = [...fieldData.permissions, permission];
 			} else {
-				// Xóa quyền nếu đã tồn tại
 				updatedPermissions = fieldData.permissions.filter(
 					(p) => p !== permission
 				);
@@ -141,12 +229,10 @@ export function ShareDrawer({
 
 			let updatedSharedData;
 			if (updatedPermissions.length === 0) {
-				// Nếu không còn quyền nào, xóa trường khỏi danh sách
 				updatedSharedData = currentSharedData.filter(
 					(item) => item.field !== fieldName
 				);
 			} else {
-				// Cập nhật quyền mới
 				updatedSharedData = [...currentSharedData];
 				updatedSharedData[fieldIndex] = {
 					field: fieldName,
@@ -156,6 +242,12 @@ export function ShareDrawer({
 
 			form.setValue("sharedData", updatedSharedData);
 		}
+	};
+
+	// Hàm xử lý xoá một share record
+	const handleDeleteShare = (recordId: string) => {
+		deleteShare({ id: recordId });
+		toast.success("Xoá chia sẻ thành công!");
 	};
 
 	return (
@@ -170,265 +262,449 @@ export function ShareDrawer({
 				<DrawerHeader>
 					<DrawerTitle>
 						Chia sẻ hồ sơ y tế{" "}
-						{type == "family" ? "toàn bộ gia đình" : "thành viên"}
+						{type === "family" ? "toàn bộ gia đình" : "thành viên"}
 					</DrawerTitle>
-
 					<DrawerDescription>
-						Chọn thông tin bạn muốn chia sẻ cho bác sĩ hoặc người
-						khác.
+						Chọn thông tin bạn muốn chia sẻ hoặc xem lại danh sách
+						đã chia sẻ.
 					</DrawerDescription>
 				</DrawerHeader>
 
-				<Form {...form}>
-					<form
-						onSubmit={form.handleSubmit(onSubmit)}
-						className="space-y-6 p-6 overflow-auto"
-					>
-						{/* <FormField
-							control={form.control}
-							name="profileId"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel className="text-base font-medium">
-										Thành viên
-									</FormLabel>
-									<Select
-										onValueChange={field.onChange}
-										value={field.value}
-									>
-										<FormControl>
-											<SelectTrigger className="w-full">
-												<SelectValue
-													placeholder="Chọn thành viên"
-													className="w-full"
-												/>
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent defaultValue={"0"}>
-											<SelectItem value="0">
-												Toàn bộ thành viên trong gia
-												đình
-											</SelectItem>
-											{profiles.map((profile) => (
-												<SelectItem
-													key={profile.id}
-													value={profile.id}
-												>
-													{profile.name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-									<FormMessage />
-								</FormItem>
-							)}
-						/> */}
+				<Tabs defaultValue="shareList">
+					<TabsList>
+						<TabsTrigger value="shareList">
+							Danh sách chia sẻ
+						</TabsTrigger>
+						<TabsTrigger value="create">Tạo chia sẻ</TabsTrigger>
+					</TabsList>
 
-						<div>
-							<FormLabel className="text-base font-medium mb-3 block">
-								Thông tin và quyền chia sẻ
-							</FormLabel>
-							<div className="space-y-3">
-								{dataFields.map((field) => (
-									<Card key={field} className="p-4">
-										<div className="flex items-center justify-between mb-2">
-											<div className="font-medium">
-												{field}
-											</div>
-											<div className="flex space-x-2">
-												{["READ", "ADD", "UPDATE"].map(
-													(perm) => (
-														<div
-															key={`${field}-${perm}`}
-															className="flex items-center"
-														>
-															<Checkbox
-																id={`${field}-${perm}`}
-																checked={hasPermission(
-																	field,
-																	perm as
-																		| "READ"
-																		| "ADD"
-																		| "UPDATE"
-																)}
-																onCheckedChange={() =>
-																	togglePermission(
-																		field,
-																		perm as
-																			| "READ"
-																			| "ADD"
-																			| "UPDATE"
-																	)
-																}
-																className="mr-1.5"
-															/>
-															<label
-																htmlFor={`${field}-${perm}`}
-																className="text-sm"
-															>
-																{perm ===
-																	"READ" &&
-																	"Xem"}
-																{perm ===
-																	"ADD" &&
-																	"Thêm"}
-																{perm ===
-																	"UPDATE" &&
-																	"Sửa"}
-															</label>
+					{/* Tab danh sách chia sẻ */}
+					<TabsContent value="shareList" className="py-4 px-2">
+						{shareList?.length === 0 ? (
+							<div className="flex flex-col items-center justify-center p-10 text-center">
+								<div className="rounded-full bg-gray-100 p-4 mb-4">
+									<FiShare2 className="h-8 w-8 text-gray-400" />
+								</div>
+								<h3 className="text-lg font-medium mb-1">
+									Chưa có chia sẻ nào
+								</h3>
+								<p className="text-gray-500 max-w-md">
+									Tạo chia sẻ mới để cho phép bác sĩ hoặc
+									người thân xem thông tin y tế của bạn
+								</p>
+							</div>
+						) : (
+							<div className="space-y-4">
+								{shareList?.map((record) => (
+									<Card
+										key={record.id}
+										className="overflow-hidden border border-gray-200 hover:border-gray-300 transition-all"
+									>
+										<div className="flex flex-col md:flex-row">
+											{/* Left section with badge and main info */}
+											<div className="p-4 flex-1">
+												<div className="flex items-center mb-3">
+													<div
+														className={`px-2 py-1 rounded-full text-xs font-medium mr-2 
+                  ${
+						record.shareType ===
+						ShareProfileDtoShareType.AnyOneWithLink
+							? "bg-blue-100 text-blue-800"
+							: "bg-purple-100 text-purple-800"
+					}`}
+													>
+														{record.shareType ===
+														ShareProfileDtoShareType.AnyOneWithLink
+															? "Link công khai"
+															: "Qua email"}
+													</div>
+													<div
+														className={`px-2 py-1 rounded-full text-xs font-medium
+                  ${
+						dayjs(record.expiresAt).isAfter(dayjs().add(5, "day"))
+							? "bg-green-100 text-green-800"
+							: "bg-amber-100 text-amber-800"
+					}`}
+													>
+														Hết hạn:{" "}
+														{dayjs(
+															record.expiresAt
+														).format("DD/MM/YYYY")}
+													</div>
+												</div>
+
+												{/* Share details */}
+												<div className="mb-3">
+													{record.reason && (
+														<div className="text-sm text-gray-600 italic mb-2">
+															"{record.reason}"
 														</div>
-													)
-												)}
+													)}
+
+													{record.invitedEmails &&
+														record.invitedEmails
+															.length > 0 && (
+															<div className="flex items-center text-sm text-gray-600 mb-2">
+																<span className="font-medium mr-2">
+																	Người nhận:
+																</span>
+																{record.invitedEmails.map(
+																	(
+																		email,
+																		index
+																	) => (
+																		<span
+																			key={
+																				index
+																			}
+																			className="bg-gray-100 px-2 py-1 rounded mr-1"
+																		>
+																			{
+																				email
+																			}
+																		</span>
+																	)
+																)}
+															</div>
+														)}
+												</div>
+
+												{/* Shared data visualization */}
+												<div>
+													<div className="text-sm font-medium mb-2">
+														Thông tin được chia sẻ:
+													</div>
+													<div className="flex flex-wrap gap-2">
+														{record.sharePermissions?.map(
+															(permission) => {
+																const fieldName =
+																	dataFields[
+																		permission
+																			.resourceType!
+																	];
+																return (
+																	<div
+																		key={
+																			permission.id
+																		}
+																		className="bg-gray-50 border border-gray-200 rounded px-2 py-1 text-sm flex items-center"
+																	>
+																		<span className="font-medium mr-1">
+																			{
+																				fieldName
+																			}
+																		</span>
+																		<div className="flex gap-1">
+																			{permission.permissionTypes!.includes(
+																				SharePermissionDtoPermissionTypesItem.VIEW
+																			) && (
+																				<span className="bg-blue-100 text-blue-800 px-1 rounded text-xs">
+																					Xem
+																				</span>
+																			)}
+																			{permission.permissionTypes!.includes(
+																				SharePermissionDtoPermissionTypesItem.EDIT
+																			) && (
+																				<span className="bg-amber-100 text-amber-800 px-1 rounded text-xs">
+																					Sửa
+																				</span>
+																			)}
+																			{permission.permissionTypes!.includes(
+																				SharePermissionDtoPermissionTypesItem.CREATE
+																			) && (
+																				<span className="bg-green-100 text-green-800 px-1 rounded text-xs">
+																					Thêm
+																				</span>
+																			)}
+																		</div>
+																	</div>
+																);
+															}
+														)}
+													</div>
+												</div>
+											</div>
+
+											{/* Right section with actions */}
+											<div className="bg-gray-50 p-4 flex flex-row md:flex-col justify-between items-center border-t md:border-t-0 md:border-l border-gray-200">
+												<div className="text-xs text-gray-500">
+													Tạo ngày:{" "}
+													{dayjs(
+														record.createdAt
+													).format("DD/MM/YYYY")}
+												</div>
+
+												<div className="flex flex-col gap-2">
+													{record.shareType ===
+														ShareProfileDtoShareType.AnyOneWithLink && (
+														<Button
+															variant="outline"
+															size="sm"
+															className="flex items-center"
+															onClick={() => {
+																navigator.clipboard.writeText(
+																	`${window.location.origin}/share/${record.id}`
+																);
+																toast.success(
+																	"Đã sao chép đường dẫn chia sẻ!"
+																);
+															}}
+														>
+															<FiShare2 className="mr-1 h-3 w-3" />
+															Sao chép link
+														</Button>
+													)}
+													<Button
+														variant="destructive"
+														size="sm"
+														onClick={() =>
+															handleDeleteShare(
+																record.id!
+															)
+														}
+													>
+														Xoá chia sẻ
+													</Button>
+												</div>
 											</div>
 										</div>
-										<p className="text-sm text-gray-500">
-											{field === "Hồ sơ y tế cơ bản" &&
-												"Thông tin cơ bản như chiều cao, cân nặng, nhóm máu..."}
-											{field === "Lịch sử khám bệnh" &&
-												"Các lần khám và chẩn đoán"}
-											{field === "Đơn thuốc" &&
-												"Đơn thuốc và hướng dẫn sử dụng"}
-											{field === "Lịch sử tiêm ngừa" &&
-												"Thông tin về các mũi tiêm đã thực hiện"}
-											{field === "Tài liệu y tế" &&
-												"Kết quả xét nghiệm, chụp chiếu và giấy tờ y tế"}
-										</p>
 									</Card>
 								))}
 							</div>
-							{form.formState.errors.sharedData && (
-								<p className="text-sm text-red-500 mt-1">
-									{form.formState.errors.sharedData.message}
-								</p>
-							)}
-						</div>
+						)}
+					</TabsContent>
 
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<FormField
-								control={form.control}
-								name="accessType"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>
-											Phương thức chia sẻ
-										</FormLabel>
-										<Select
-											onValueChange={field.onChange}
-											value={field.value}
-										>
-											<FormControl>
-												<SelectTrigger className="w-full">
-													<SelectValue />
-												</SelectTrigger>
-											</FormControl>
-											<SelectContent>
-												<SelectItem value="email">
-													Qua email
-												</SelectItem>
-												<SelectItem value="link">
-													Bất kì ai có đường dẫn
-												</SelectItem>
-											</SelectContent>
-										</Select>
-									</FormItem>
-								)}
-							/>
+					{/* Tab tạo chia sẻ (giữ nguyên form cũ) */}
+					<TabsContent
+						value="create"
+						className="overflow-auto max-h-[80vh]"
+					>
+						<Form {...form}>
+							<form
+								onSubmit={form.handleSubmit(onSubmit)}
+								className="space-y-6 p-6 overflow-auto"
+							>
+								<div>
+									<FormLabel className="text-base font-medium mb-3 block">
+										Thông tin và quyền chia sẻ
+									</FormLabel>
+									<div className="space-y-3">
+										{Object.keys(dataFields).map(
+											(field: any) => (
+												<Card
+													key={field}
+													className="p-4 gap-2"
+												>
+													<div className="flex items-center justify-between mb-2">
+														<div className="font-medium">
+															{dataFields[field!]}
+														</div>
+														<div className="flex space-x-2">
+															{Object.values(
+																SharePermissionDtoPermissionTypesItem
+															).map((perm) => (
+																<div
+																	key={`${field}-${perm}`}
+																	className="flex items-center"
+																>
+																	<Checkbox
+																		id={`${field}-${perm}`}
+																		checked={hasPermission(
+																			field,
+																			perm as PermissionType
+																		)}
+																		onCheckedChange={() =>
+																			togglePermission(
+																				field,
+																				perm as PermissionType
+																			)
+																		}
+																		className="mr-1.5"
+																	/>
+																	<label
+																		htmlFor={`${field}-${perm}`}
+																		className="text-sm"
+																	>
+																		{perm ===
+																			SharePermissionDtoPermissionTypesItem.VIEW &&
+																			"Xem"}
+																		{perm ===
+																			SharePermissionDtoPermissionTypesItem.CREATE &&
+																			"Thêm"}
+																		{perm ===
+																			SharePermissionDtoPermissionTypesItem.EDIT &&
+																			"Sửa"}
+																	</label>
+																</div>
+															))}
+														</div>
+													</div>
+													<p className="text-sm text-gray-500">
+														{field ===
+															SharePermissionDtoResourceType.PROFILE &&
+															"Thông tin cơ bản như chiều cao, cân nặng, nhóm máu..."}
+														{field ===
+															SharePermissionDtoResourceType.MEDICAL_RECORD &&
+															"Các lần khám và chẩn đoán"}
+														{field ===
+															SharePermissionDtoResourceType.PRESCRIPTION &&
+															"Đơn thuốc và hướng dẫn sử dụng"}
+														{field ===
+															SharePermissionDtoResourceType.VACCINATION &&
+															"Thông tin về các mũi tiêm đã thực hiện"}
+														{field ===
+															SharePermissionDtoResourceType.FILE_DOCUMENT &&
+															"Kết quả xét nghiệm, chụp chiếu và giấy tờ y tế"}
+													</p>
+												</Card>
+											)
+										)}
+									</div>
+									{form.formState.errors.sharedData && (
+										<p className="text-sm text-red-500 mt-1">
+											{
+												form.formState.errors.sharedData
+													.message
+											}
+										</p>
+									)}
+								</div>
 
-							{form.watch("accessType") === "email" && (
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+									<FormField
+										control={form.control}
+										name="accessType"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>
+													Phương thức chia sẻ
+												</FormLabel>
+												<Select
+													onValueChange={
+														field.onChange
+													}
+													value={field.value}
+												>
+													<FormControl>
+														<SelectTrigger className="w-full">
+															<SelectValue />
+														</SelectTrigger>
+													</FormControl>
+													<SelectContent>
+														<SelectItem value="email">
+															Qua email
+														</SelectItem>
+														<SelectItem value="link">
+															Bất kì ai có đường
+															dẫn
+														</SelectItem>
+													</SelectContent>
+												</Select>
+											</FormItem>
+										)}
+									/>
+
+									{form.watch("accessType") === "email" && (
+										<FormField
+											control={form.control}
+											name="doctorEmail"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>
+														Email người nhận
+													</FormLabel>
+													<Input
+														type="email"
+														placeholder="Nhập email người nhận"
+														{...field}
+													/>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+									)}
+								</div>
+
 								<FormField
 									control={form.control}
-									name="doctorEmail"
+									name="expiresAt"
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>
-												Email người nhận
+												Thời hạn chia sẻ
 											</FormLabel>
-											<Input
-												type="email"
-												placeholder="Nhập email người nhận"
-												{...field}
-											/>
+											<Popover>
+												<PopoverTrigger asChild>
+													<FormControl>
+														<Button
+															variant="outline"
+															className="w-full md:w-auto"
+														>
+															{field.value
+																? format(
+																		field.value,
+																		"dd/MM/yyyy"
+																	)
+																: "Chọn ngày"}
+															<FiChevronRight className="ml-2 h-4 w-4" />
+														</Button>
+													</FormControl>
+												</PopoverTrigger>
+												<PopoverContent className="w-auto p-0">
+													<Calendar
+														mode="single"
+														selected={field.value}
+														onSelect={
+															field.onChange
+														}
+														initialFocus
+														disabled={(date) =>
+															date < new Date()
+														}
+													/>
+												</PopoverContent>
+											</Popover>
 											<FormMessage />
 										</FormItem>
 									)}
 								/>
-							)}
-						</div>
 
-						<FormField
-							control={form.control}
-							name="expiresAt"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Thời hạn chia sẻ</FormLabel>
-									<Popover>
-										<PopoverTrigger asChild>
-											<FormControl>
-												<Button
-													variant="outline"
-													className="w-full md:w-auto"
-												>
-													{field.value
-														? format(
-																field.value,
-																"dd/MM/yyyy"
-															)
-														: "Chọn ngày"}
-													<FiChevronRight className="ml-2 h-4 w-4" />
-												</Button>
-											</FormControl>
-										</PopoverTrigger>
-										<PopoverContent className="w-auto p-0">
-											<Calendar
-												mode="single"
-												selected={field.value}
-												onSelect={field.onChange}
-												initialFocus
-												disabled={(date) =>
-													date < new Date()
-												}
+								<FormField
+									control={form.control}
+									name="reason"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>
+												Lý do chia sẻ (tuỳ chọn)
+											</FormLabel>
+											<Textarea
+												placeholder="Nhập lý do chia sẻ..."
+												className="resize-none"
+												{...field}
 											/>
-										</PopoverContent>
-									</Popover>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
+										</FormItem>
+									)}
+								/>
 
-						<FormField
-							control={form.control}
-							name="reason"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>
-										Lý do chia sẻ (tuỳ chọn)
-									</FormLabel>
-									<Textarea
-										placeholder="Nhập lý do chia sẻ..."
-										className="resize-none"
-										{...field}
-									/>
-								</FormItem>
-							)}
-						/>
-
-						<div className="flex justify-end gap-2">
-							<Button
-								type="button"
-								variant="outline"
-								onClick={() => setOpen(false)}
-							>
-								Hủy
-							</Button>
-							<Button
-								type="submit"
-								className="bg-green-500 hover:bg-green-600"
-							>
-								Tạo chia sẻ
-							</Button>
-						</div>
-					</form>
-				</Form>
+								<div className="flex justify-end gap-2">
+									<Button
+										type="button"
+										variant="outline"
+										onClick={() => setOpen(false)}
+									>
+										Hủy
+									</Button>
+									<Button
+										type="submit"
+										className="bg-green-500 hover:bg-green-600"
+									>
+										Tạo chia sẻ
+									</Button>
+								</div>
+							</form>
+						</Form>
+					</TabsContent>
+				</Tabs>
 			</DrawerContent>
 		</Drawer>
 	);

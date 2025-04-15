@@ -5,7 +5,6 @@ import {
 	FiUsers,
 	FiActivity,
 	FiFileText,
-	FiBarChart2,
 	FiCheckCircle,
 	FiShare2,
 	FiCalendar,
@@ -44,7 +43,7 @@ const menuItems = [
 		icon: <FiUsers className="mr-3 h-4 w-4" />,
 	},
 	{
-		path: "/medical",
+		path: "/home/health-profile",
 		label: "Hồ sơ y tế",
 		icon: <FiActivity className="mr-3 h-4 w-4" />,
 	},
@@ -59,11 +58,6 @@ const menuItems = [
 		icon: <FiFileText className="mr-3 h-4 w-4" />,
 	},
 	{
-		path: "/health-metrics",
-		label: "Chỉ số sức khỏe",
-		icon: <FiBarChart2 className="mr-3 h-4 w-4" />,
-	},
-	{
 		path: "/reminders",
 		label: "Nhắc nhở",
 		icon: <FiCalendar className="mr-3 h-4 w-4" />,
@@ -72,11 +66,6 @@ const menuItems = [
 		path: "/sharing",
 		label: "Chia sẻ hồ sơ",
 		icon: <FiShare2 className="mr-3 h-4 w-4" />,
-	},
-	{
-		path: "/settings",
-		label: "Cài đặt",
-		icon: <FiSettings className="mr-3 h-4 w-4" />,
 	},
 ];
 
@@ -330,13 +319,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
-						<Link to="/profile">
+						<Link to="/home/user-profile">
 							<DropdownMenuItem>
 								<FiUser className="mr-2 h-4 w-4" />
 								Hồ sơ
 							</DropdownMenuItem>
 						</Link>
-						<Link to="/settings">
+						<Link to="/home/user-profile">
 							<DropdownMenuItem>
 								<FiSettings className="mr-2 h-4 w-4" />
 								Cài đặt

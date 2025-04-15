@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { FileText, Plus, Search, X } from "lucide-react";
 import MedicalRecordCard from "@/components/medical/MedicalRecordCard";
 import { MedicalRecordDto } from "@/models/generated/medicalRecordDto";
-import { FamilyMemberDTO } from "@/models/generated";
+import { ProfileDTO } from "@/models/generated";
 import {
 	Drawer,
 	DrawerClose,
@@ -32,12 +32,12 @@ import { Link } from "@tanstack/react-router";
 
 interface RecordsTabContentProps {
 	memberRecords: MedicalRecordDto[];
-	memberData: FamilyMemberDTO;
+	profile: ProfileDTO;
 }
 
 export function RecordsTabContent({
 	memberRecords: initialRecords,
-	memberData,
+	profile,
 }: RecordsTabContentProps) {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -125,8 +125,7 @@ export function RecordsTabContent({
 										</DrawerTitle>
 										<DrawerDescription className="text-gray-500">
 											Hồ sơ khám cho{" "}
-											{memberData.profile?.fullName ||
-												"bệnh nhân"}
+											{profile?.fullName || "bệnh nhân"}
 										</DrawerDescription>
 									</div>
 									<DrawerClose asChild>
@@ -146,10 +145,7 @@ export function RecordsTabContent({
 											setIsAlertDialogOpen(true);
 										}
 									}}
-									profileId={
-										memberData.profile?.id ||
-										memberData.profileId
-									}
+									profileId={profile.id}
 								/>
 							</div>
 						</div>
@@ -173,7 +169,7 @@ export function RecordsTabContent({
 							{searchTerm
 								? "Try a different search term or "
 								: ""}
-							Add a new record for {memberData.profile?.fullName}
+							Add a new record for {profile?.fullName}
 						</p>
 						<Button
 							className="mt-4 "

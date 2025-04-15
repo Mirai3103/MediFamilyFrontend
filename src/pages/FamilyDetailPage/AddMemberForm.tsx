@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/command";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ProfileGender, type Family } from "@/models/generated";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -45,9 +44,10 @@ import {
 import { useAddMemberToFamily } from "@/queries/generated/family-member-controller/family-member-controller";
 import { useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { FamilyDTO, ProfileDTOGender } from "@/models/generated";
 
 interface FamilyDetailPageProps {
-	family: Family;
+	family: FamilyDTO;
 	onClose: () => void;
 	onSuccess?: () => void;
 }
@@ -75,7 +75,7 @@ const newMemberSchema = z.object({
 	relationship: z.string({
 		required_error: "Vui lòng chọn quan hệ với chủ hộ",
 	}),
-	gender: z.nativeEnum(ProfileGender, {
+	gender: z.nativeEnum(ProfileDTOGender, {
 		required_error: "Vui lòng chọn giới tính",
 	}),
 	birthDate: z.string().refine(
@@ -344,14 +344,14 @@ const AddMemberForm = ({
 												<SelectContent>
 													<SelectItem
 														value={
-															ProfileGender.MALE
+															ProfileDTOGender.MALE
 														}
 													>
 														Nam
 													</SelectItem>
 													<SelectItem
 														value={
-															ProfileGender.FEMALE
+															ProfileDTOGender.FEMALE
 														}
 													>
 														Nữ

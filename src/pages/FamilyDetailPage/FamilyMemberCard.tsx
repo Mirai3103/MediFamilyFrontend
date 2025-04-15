@@ -28,7 +28,7 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Family, ProfileGender } from "@/models/generated";
+import { FamilyDTO, ProfileDTOGender } from "@/models/generated";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import dayjs from "dayjs";
 import {
@@ -52,7 +52,7 @@ import { useState } from "react";
 import { useRouter } from "@tanstack/react-router";
 
 interface MemberCardProps {
-	member: NonNullable<Family["familyMembers"]>[0];
+	member: NonNullable<FamilyDTO["familyMembers"]>[0];
 	isHouseholder: boolean;
 	onViewMedicalProfile?: () => void;
 	onEditMember?: () => void;
@@ -190,10 +190,10 @@ export const MemberCard = ({
 							<FiMapPin className="h-4 w-4 text-primary" />
 						</div>
 						<div className="w-full">
-							<p className="text-xs text-muted-foreground">
+							<p className="text-xs text-muted-foreground ">
 								Địa chỉ
 							</p>
-							<p className="text-sm font-medium truncate">
+							<p className="text-sm font-medium line-clamp-2">
 								{address}
 							</p>
 						</div>
@@ -318,7 +318,7 @@ const calculateAge = (birthDate: string) => {
 	}
 	return age;
 };
-const formatGender = (gender: ProfileGender) => {
+const formatGender = (gender: ProfileDTOGender) => {
 	if (!gender) return "Chưa cập nhật";
 	switch (gender.toUpperCase()) {
 		case "MALE":

@@ -7,38 +7,29 @@ import { FileText, Pill, Clipboard, HeartPulse, Syringe } from "lucide-react";
 // Import the new tab content components
 import { RecordsTabContent } from "./RecordsTabContent";
 
-import { FamilyMemberDTO } from "@/models/generated";
+import { ProfileDTO } from "@/models/generated";
 import { useGetAllMedicalRecords } from "@/queries/generated/medical-record-controller/medical-record-controller";
 
 interface RecordTabContainerProps {
-	member: FamilyMemberDTO;
+	profile: ProfileDTO;
 }
 
-// Renamed from RecordTab for clarity
-export function RecordTabContainer({ member }: RecordTabContainerProps) {
-	// Simulating getting IDs (replace with actual mechanism)
-	const { data: records = [] } = useGetAllMedicalRecords(
-		member?.profile?.id!,
-		{
-			query: {
-				enabled: !!member?.profile?.id,
-			},
-		}
-	);
-	const familyId = 1;
-	const memberId = 101;
+export function RecordTabContainer({ profile }: RecordTabContainerProps) {
+	const { data: records = [] } = useGetAllMedicalRecords(profile?.id!, {
+		query: {
+			enabled: !!profile?.id,
+		},
+	});
 
 	const [activeTab, setActiveTab] = useState("overview");
 
 	return (
-		// Use a neutral background for the container, let tabs/cards handle specific bg
 		<div className="flex-grow p-4 md:p-6 lg:p-8 bg-white rounded-2xl shadow-sm">
 			<Tabs
 				value={activeTab}
 				onValueChange={setActiveTab}
 				className="space-y-4"
 			>
-				{/* Consider styling the TabsList wrapper if needed */}
 				<div className="overflow-x-auto pb-2">
 					<TabsList className="bg-gray-100 border border-gray-200">
 						<TabsTrigger
@@ -94,7 +85,7 @@ export function RecordTabContainer({ member }: RecordTabContainerProps) {
 				<TabsContent value="records">
 					<RecordsTabContent
 						memberRecords={records}
-						memberData={member}
+						profile={profile!}
 					/>
 				</TabsContent>
 
