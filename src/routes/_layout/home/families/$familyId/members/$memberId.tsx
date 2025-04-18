@@ -30,5 +30,11 @@ function RouteComponent() {
 	const { family, member } = useLoaderData({
 		from: "/_layout/home/families/$familyId/members/$memberId",
 	});
-	return <FamilyMemberDetailPage family={family} profile={member.profile!} />;
+	return (
+		<FamilyMemberDetailPage
+			family={family}
+			profile={member.profile!}
+			memberId={member.id}
+		/>
+	);
 }

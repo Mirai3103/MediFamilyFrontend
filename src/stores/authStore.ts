@@ -42,8 +42,8 @@ const useUserStore = create<userState>((set) => ({
 				set({
 					isAuthenticated: false,
 					profile: null,
-					isLoading: false,
 				});
+				localStorage.removeItem("access_token");
 			} else {
 				console.error("Error fetching user profile:", error);
 				set({

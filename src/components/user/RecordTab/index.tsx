@@ -9,6 +9,7 @@ import { RecordsTabContent } from "./RecordsTabContent";
 
 import { ProfileDTO } from "@/models/generated";
 import { useGetAllMedicalRecords } from "@/queries/generated/medical-record-controller/medical-record-controller";
+import { VaccinationsTabContent } from "./VaccinationsTabContent";
 
 interface RecordTabContainerProps {
 	profile: ProfileDTO;
@@ -96,9 +97,7 @@ export function RecordTabContainer({ profile }: RecordTabContainerProps) {
 				</TabsContent>
 
 				<TabsContent value="vaccinations">
-					{/* <VaccinationsTabContent
-						memberVaccinations={memberVaccinations}
-					/> */}
+					<VaccinationsTabContent profileId={profile?.id!} />
 				</TabsContent>
 
 				<TabsContent value="vitals">

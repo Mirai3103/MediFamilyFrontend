@@ -168,7 +168,7 @@ export function ShareDrawer({
 					"YYYY-MM-DDTHH:mm:ss"
 				),
 				reason: values.reason,
-				memberId: type === "member" ? values.profileId! : undefined,
+				memberId: type === "member" ? memberId! : undefined,
 				familyId: familyId,
 				sharePermissions: values.sharedData.map((item) => ({
 					permissionTypes: item.permissions.map(
@@ -279,9 +279,12 @@ export function ShareDrawer({
 					</TabsList>
 
 					{/* Tab danh sách chia sẻ */}
-					<TabsContent value="shareList" className="py-4 px-2">
+					<TabsContent
+						value="shareList"
+						className="py-1 px-2 overflow-auto max-h-[80vh]"
+					>
 						{shareList?.length === 0 ? (
-							<div className="flex flex-col items-center justify-center p-10 text-center">
+							<div className="flex flex-col items-center justify-center p-10  text-center">
 								<div className="rounded-full bg-gray-100 p-4 mb-4">
 									<FiShare2 className="h-8 w-8 text-gray-400" />
 								</div>
@@ -294,11 +297,11 @@ export function ShareDrawer({
 								</p>
 							</div>
 						) : (
-							<div className="space-y-4">
+							<div className="space-y-4 ">
 								{shareList?.map((record) => (
 									<Card
 										key={record.id}
-										className="overflow-hidden border border-gray-200 hover:border-gray-300 transition-all"
+										className="overflow-hidden border py-2 border-gray-200 hover:border-gray-300 transition-all"
 									>
 										<div className="flex flex-col md:flex-row">
 											{/* Left section with badge and main info */}
@@ -335,11 +338,11 @@ export function ShareDrawer({
 
 												{/* Share details */}
 												<div className="mb-3">
-													{record.reason && (
+													{/* {record.reason && (
 														<div className="text-sm text-gray-600 italic mb-2">
 															"{record.reason}"
 														</div>
-													)}
+													)} */}
 
 													{record.invitedEmails &&
 														record.invitedEmails
@@ -371,8 +374,17 @@ export function ShareDrawer({
 
 												{/* Shared data visualization */}
 												<div>
-													<div className="text-sm font-medium mb-2">
-														Thông tin được chia sẻ:
+													<div className="text-sm font-medium mb-1">
+														Thông tin được chia
+														sẻ:{" "}
+													</div>
+													<div className="text-sm font-medium mb-2 ">
+														{record.memberId != null
+															? "1 Thành viên: " +
+																record.member
+																	?.profile
+																	?.fullName
+															: "Toàn bộ gia đình"}
 													</div>
 													<div className="flex flex-wrap gap-2">
 														{record.sharePermissions?.map(
