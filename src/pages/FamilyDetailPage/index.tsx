@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { type Family } from "@/models/generated";
+import { type FamilyDTO as Family } from "@/models/generated";
 import { MemberCard } from "./FamilyMemberCard";
 import FamilyInfo from "./FamilyInfo";
 import AddMemberForm from "./AddMemberForm";
@@ -62,7 +62,7 @@ const FamilyDetailPage = ({ family }: FamilyDetailPageProps) => {
 
 				<TabsContent value="members" className="space-y-6">
 					{/* Thêm thành viên mới */}
-					{family.owner.id === currentUserProfileId && (
+					{family!.owner!.id === currentUserProfileId && (
 						<div className="flex gap-x-2 justify-end">
 							<ShareDrawer type="family" familyId={family.id!} />
 
@@ -95,7 +95,7 @@ const FamilyDetailPage = ({ family }: FamilyDetailPageProps) => {
 								member={member}
 								isHouseholder={member.relationship === "Chủ hộ"}
 								isCurrentUserHouseholder={
-									currentUserProfileId === family.owner.id
+									currentUserProfileId === family!.owner!.id
 								}
 								onViewMedicalProfile={() =>
 									navigate({

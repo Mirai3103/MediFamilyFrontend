@@ -1,6 +1,7 @@
 import { ShareDrawer } from "@/components/share-drawer";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HealthProfileTab from "@/components/user/HealthProfileTab";
+import MedicalDocumentsTab from "@/components/user/MedicalDocumentsTab";
 import PersonalInfoSection from "@/components/user/PersonalInfoTab/PersonalInfoSection";
 import RecordTab from "@/components/user/RecordTab";
 import { FamilyDTO, ProfileDTO } from "@/models/generated";
@@ -53,6 +54,9 @@ export default function FamilyMemberDetailPage({
 							<TabsTrigger value="personal">
 								Thông tin cá nhân
 							</TabsTrigger>
+							<TabsTrigger value="document">
+								Tài liệu y tế
+							</TabsTrigger>
 							<TabsTrigger value="health">
 								Thông tin sức khỏe
 							</TabsTrigger>
@@ -62,6 +66,9 @@ export default function FamilyMemberDetailPage({
 					<div className="md:col-span-3">
 						{activeTab === "personal" && (
 							<PersonalInfoSection profile={profile!} />
+						)}
+						{activeTab === "document" && (
+							<MedicalDocumentsTab profile={profile!} />
 						)}
 						{activeTab === "health" && (
 							<HealthProfileTab profile={profile!} />

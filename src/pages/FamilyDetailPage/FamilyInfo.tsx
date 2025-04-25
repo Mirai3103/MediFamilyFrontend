@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FiUsers, FiHome, FiEdit2, FiTrash2 } from "react-icons/fi";
+import { FiUsers, FiHome, FiEdit2, FiTrash2, FiUserPlus } from "react-icons/fi";
 import {
 	Card,
 	CardContent,
@@ -29,7 +29,10 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import { type Family } from "@/models/generated";
+import {
+	FamilyDoctorDtoStatus,
+	type FamilyDTO as Family,
+} from "@/models/generated";
 import dayjs from "dayjs";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -48,6 +51,11 @@ import {
 } from "@/queries/generated/family-controller/family-controller";
 import { toast } from "sonner";
 import { useNavigate, useRouter } from "@tanstack/react-router";
+import {
+	useDeleteRequest,
+	useGetDoctorByFamily,
+} from "@/queries/generated/doctor-family-controller/doctor-family-controller";
+import AddDoctorDrawer from "@/components/AddDoctorDrawer";
 
 // Zod schema based on the provided validation annotations
 const familySchema = z.object({
@@ -81,12 +89,25 @@ interface FamilyInfoProps {
 export default function FamilyInfo({ family }: FamilyInfoProps) {
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+	const [isRemoveDoctorDialogOpen, setIsRemoveDoctorDialogOpen] =
+		useState(false);
+	const [isOpenAddDoctor, setIsOpenAddDoctor] = useState(false);
 	const router = useRouter();
 	const navigate = useNavigate();
 	const householder = (family.familyMembers || []).find(
 		(member) => member.relationship === "Chủ hộ"
 	);
-
+	const { data: doctorOfFamily, refetch: refetchDoctorOfFamily } =
+		useGetDoctorByFamily(
+			{
+				familyId: family.id!,
+			},
+			{
+				query: {
+					enabled: !!family.id,
+				},
+			}
+		);
 	const form = useForm<FamilyFormValues>({
 		resolver: zodResolver(familySchema),
 		defaultValues: {
@@ -153,6 +174,36 @@ export default function FamilyInfo({ family }: FamilyInfoProps) {
 		if (isDeleting) return;
 		deleteFamily({
 			id: family.id + "",
+		});
+	};
+
+	const { mutateAsync: removeDoctor, isPending: isRemovingDoctor } =
+		useDeleteRequest({
+			mutation: {
+				onSuccess: () => {
+					toast.success("Đã xoá bác sĩ quản lý khỏi gia đình", {
+						duration: 3000,
+					});
+					setIsRemoveDoctorDialogOpen(false);
+					router.invalidate();
+					refetchDoctorOfFamily();
+				},
+				onError: (error: any) => {
+					toast.error("Xoá bác sĩ quản lý thất bại", {
+						duration: 5000,
+						description:
+							error.response?.data?.message ||
+							error.message ||
+							"Đã có lỗi xảy ra",
+					});
+				},
+			},
+		});
+
+	const handleRemoveDoctor = () => {
+		if (isRemovingDoctor || !doctorOfFamily) return;
+		removeDoctor({
+			id: doctorOfFamily.id!,
 		});
 	};
 
@@ -248,7 +299,8 @@ export default function FamilyInfo({ family }: FamilyInfoProps) {
 
 					<Separator className="my-6" />
 
-					<div>
+					{/* Chủ hộ section */}
+					<div className="mb-6">
 						<div className="flex items-center mb-4">
 							<FiUsers className="mr-2 h-5 w-5" />
 							<h3 className="font-semibold text-lg">Chủ hộ</h3>
@@ -286,6 +338,157 @@ export default function FamilyInfo({ family }: FamilyInfoProps) {
 						) : (
 							<p className="text-muted-foreground italic">
 								Chưa có thông tin chủ hộ
+							</p>
+						)}
+					</div>
+
+					{/* New Doctor section */}
+					<div>
+						<div className="flex items-center justify-between mb-4">
+							<div className="flex items-center justify-between w-full">
+								<div className="flex items-center">
+									<FiUserPlus className="mr-2 h-5 w-5" />
+									<h3 className="font-semibold text-lg">
+										Bác sĩ quản lý
+									</h3>
+								</div>
+								<div>
+									{doctorOfFamily && (
+										// delete doctor button
+										<Button
+											variant="destructive"
+											size="sm"
+											className="flex items-center gap-1"
+											onClick={() =>
+												setIsRemoveDoctorDialogOpen(
+													true
+												)
+											}
+										>
+											<FiTrash2 className="h-4 w-4" />
+											Gỡ bỏ bác sĩ
+										</Button>
+									)}
+								</div>
+							</div>
+							{!doctorOfFamily && (
+								<>
+									<Button
+										variant="outline"
+										size="sm"
+										className="flex items-center gap-1"
+										onClick={() => setIsOpenAddDoctor(true)}
+									>
+										<FiUserPlus className="h-4 w-4" />
+										Thêm bác sĩ
+									</Button>
+									<AddDoctorDrawer
+										familyId={family.id!}
+										isOpen={isOpenAddDoctor}
+										onClose={() =>
+											setIsOpenAddDoctor(false)
+										}
+										onSuccess={() =>
+											refetchDoctorOfFamily()
+										}
+									/>
+								</>
+							)}
+						</div>
+
+						{doctorOfFamily ? (
+							<div className="p-3 bg-muted/20 rounded-lg">
+								<div className="flex items-center">
+									<Avatar className="h-12 w-12 mr-4 border">
+										<AvatarImage
+											src={
+												"https://placewaifu.com/image/300"
+											}
+											alt={
+												doctorOfFamily.doctor?.bio || ""
+											}
+										/>
+										<AvatarFallback>BS</AvatarFallback>
+									</Avatar>
+									<div className="flex-1">
+										<p className="font-medium text-base">
+											BS.{" "}
+											{doctorOfFamily.doctor?.bio || ""}
+										</p>
+										<p className="text-sm text-muted-foreground">
+											{doctorOfFamily.doctor?.specialty ||
+												""}
+											{doctorOfFamily.doctor?.specialty &&
+												" • "}
+											Số giấy phép:{" "}
+											{doctorOfFamily.doctor
+												?.licenseNumber || ""}
+										</p>
+									</div>
+								</div>
+								<div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
+									<div>
+										<p className="text-xs font-medium text-muted-foreground">
+											Cơ sở y tế
+										</p>
+										<p className="text-sm">
+											{doctorOfFamily.doctor
+												?.medicalFacility || "—"}
+										</p>
+									</div>
+									<div>
+										<p className="text-xs font-medium text-muted-foreground">
+											Ngày bắt đầu quản lý
+										</p>
+										<p className="text-sm">
+											{doctorOfFamily.createdAt
+												? dayjs(
+														doctorOfFamily.createdAt
+													).format("DD/MM/YYYY")
+												: "—"}
+										</p>
+									</div>
+									{doctorOfFamily.status && (
+										<div>
+											<p className="text-xs font-medium text-muted-foreground">
+												Trạng thái
+											</p>
+											<div
+												className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${
+													doctorOfFamily.status ===
+													FamilyDoctorDtoStatus.ACCEPTED
+														? "bg-green-100 text-green-800"
+														: doctorOfFamily.status ===
+															  "PENDING"
+															? "bg-yellow-100 text-yellow-800"
+															: "bg-gray-100 text-gray-800"
+												}`}
+											>
+												{doctorOfFamily.status ===
+												FamilyDoctorDtoStatus.ACCEPTED
+													? "Đang hoạt động"
+													: doctorOfFamily.status ===
+														  "PENDING"
+														? "Chờ xác nhận"
+														: doctorOfFamily.status}
+											</div>
+										</div>
+									)}
+									{doctorOfFamily.notes && (
+										<div>
+											<p className="text-xs font-medium text-muted-foreground">
+												Ghi chú
+											</p>
+											<p className="text-sm">
+												{doctorOfFamily.notes}
+											</p>
+										</div>
+									)}
+								</div>
+							</div>
+						) : (
+							<p className="text-muted-foreground italic">
+								Chưa có bác sĩ quản lý cho gia đình này
 							</p>
 						)}
 					</div>
@@ -421,6 +624,38 @@ export default function FamilyInfo({ family }: FamilyInfoProps) {
 							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
 						>
 							{isDeleting ? "Đang xoá..." : "Xoá gia đình"}
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+
+			{/* Remove Doctor Confirmation Dialog */}
+			<AlertDialog
+				open={isRemoveDoctorDialogOpen}
+				onOpenChange={setIsRemoveDoctorDialogOpen}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>
+							Xác nhận gỡ bỏ bác sĩ quản lý
+						</AlertDialogTitle>
+						<AlertDialogDescription>
+							Bạn có chắc chắn muốn gỡ bỏ bác sĩ "
+							{doctorOfFamily?.doctor?.bio || ""}" khỏi gia đình
+							của bạn? Hành động này sẽ huỷ bỏ liên kết giữa bác
+							sĩ và gia đình.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Huỷ bỏ</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={handleRemoveDoctor}
+							disabled={isRemovingDoctor}
+							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+						>
+							{isRemovingDoctor
+								? "Đang gỡ bỏ..."
+								: "Gỡ bỏ bác sĩ"}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

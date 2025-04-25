@@ -18,7 +18,10 @@ import { Route as AboutImport } from './routes/about'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as IndexImport } from './routes/index'
 import { Route as LayoutHomeIndexImport } from './routes/_layout/home/index'
+import { Route as LayoutHomeVaccinationImport } from './routes/_layout/home/vaccination'
 import { Route as LayoutHomeUserProfileImport } from './routes/_layout/home/user-profile'
+import { Route as LayoutHomeManageFamilyImport } from './routes/_layout/home/manage-family'
+import { Route as LayoutHomeDocumentsImport } from './routes/_layout/home/documents'
 import { Route as LayoutHomeHealthProfileIndexImport } from './routes/_layout/home/health-profile/index'
 import { Route as LayoutHomeFamiliesIndexImport } from './routes/_layout/home/families/index'
 import { Route as LayoutHomeFamiliesSharingIndexImport } from './routes/_layout/home/families/sharing/index'
@@ -69,9 +72,27 @@ const LayoutHomeIndexRoute = LayoutHomeIndexImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
+const LayoutHomeVaccinationRoute = LayoutHomeVaccinationImport.update({
+  id: '/home/vaccination',
+  path: '/home/vaccination',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
 const LayoutHomeUserProfileRoute = LayoutHomeUserProfileImport.update({
   id: '/home/user-profile',
   path: '/home/user-profile',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutHomeManageFamilyRoute = LayoutHomeManageFamilyImport.update({
+  id: '/home/manage-family',
+  path: '/home/manage-family',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutHomeDocumentsRoute = LayoutHomeDocumentsImport.update({
+  id: '/home/documents',
+  path: '/home/documents',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -162,11 +183,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterImport
       parentRoute: typeof rootRoute
     }
+    '/_layout/home/documents': {
+      id: '/_layout/home/documents'
+      path: '/home/documents'
+      fullPath: '/home/documents'
+      preLoaderRoute: typeof LayoutHomeDocumentsImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/home/manage-family': {
+      id: '/_layout/home/manage-family'
+      path: '/home/manage-family'
+      fullPath: '/home/manage-family'
+      preLoaderRoute: typeof LayoutHomeManageFamilyImport
+      parentRoute: typeof LayoutImport
+    }
     '/_layout/home/user-profile': {
       id: '/_layout/home/user-profile'
       path: '/home/user-profile'
       fullPath: '/home/user-profile'
       preLoaderRoute: typeof LayoutHomeUserProfileImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/home/vaccination': {
+      id: '/_layout/home/vaccination'
+      path: '/home/vaccination'
+      fullPath: '/home/vaccination'
+      preLoaderRoute: typeof LayoutHomeVaccinationImport
       parentRoute: typeof LayoutImport
     }
     '/_layout/home/': {
@@ -224,7 +266,10 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface LayoutRouteChildren {
+  LayoutHomeDocumentsRoute: typeof LayoutHomeDocumentsRoute
+  LayoutHomeManageFamilyRoute: typeof LayoutHomeManageFamilyRoute
   LayoutHomeUserProfileRoute: typeof LayoutHomeUserProfileRoute
+  LayoutHomeVaccinationRoute: typeof LayoutHomeVaccinationRoute
   LayoutHomeIndexRoute: typeof LayoutHomeIndexRoute
   LayoutHomeFamiliesIndexRoute: typeof LayoutHomeFamiliesIndexRoute
   LayoutHomeHealthProfileIndexRoute: typeof LayoutHomeHealthProfileIndexRoute
@@ -235,7 +280,10 @@ interface LayoutRouteChildren {
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
+  LayoutHomeDocumentsRoute: LayoutHomeDocumentsRoute,
+  LayoutHomeManageFamilyRoute: LayoutHomeManageFamilyRoute,
   LayoutHomeUserProfileRoute: LayoutHomeUserProfileRoute,
+  LayoutHomeVaccinationRoute: LayoutHomeVaccinationRoute,
   LayoutHomeIndexRoute: LayoutHomeIndexRoute,
   LayoutHomeFamiliesIndexRoute: LayoutHomeFamiliesIndexRoute,
   LayoutHomeHealthProfileIndexRoute: LayoutHomeHealthProfileIndexRoute,
@@ -256,7 +304,10 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/home/documents': typeof LayoutHomeDocumentsRoute
+  '/home/manage-family': typeof LayoutHomeManageFamilyRoute
   '/home/user-profile': typeof LayoutHomeUserProfileRoute
+  '/home/vaccination': typeof LayoutHomeVaccinationRoute
   '/home': typeof LayoutHomeIndexRoute
   '/home/families': typeof LayoutHomeFamiliesIndexRoute
   '/home/health-profile': typeof LayoutHomeHealthProfileIndexRoute
@@ -273,7 +324,10 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/home/documents': typeof LayoutHomeDocumentsRoute
+  '/home/manage-family': typeof LayoutHomeManageFamilyRoute
   '/home/user-profile': typeof LayoutHomeUserProfileRoute
+  '/home/vaccination': typeof LayoutHomeVaccinationRoute
   '/home': typeof LayoutHomeIndexRoute
   '/home/families': typeof LayoutHomeFamiliesIndexRoute
   '/home/health-profile': typeof LayoutHomeHealthProfileIndexRoute
@@ -291,7 +345,10 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/_layout/home/documents': typeof LayoutHomeDocumentsRoute
+  '/_layout/home/manage-family': typeof LayoutHomeManageFamilyRoute
   '/_layout/home/user-profile': typeof LayoutHomeUserProfileRoute
+  '/_layout/home/vaccination': typeof LayoutHomeVaccinationRoute
   '/_layout/home/': typeof LayoutHomeIndexRoute
   '/_layout/home/families/': typeof LayoutHomeFamiliesIndexRoute
   '/_layout/home/health-profile/': typeof LayoutHomeHealthProfileIndexRoute
@@ -310,7 +367,10 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/register'
+    | '/home/documents'
+    | '/home/manage-family'
     | '/home/user-profile'
+    | '/home/vaccination'
     | '/home'
     | '/home/families'
     | '/home/health-profile'
@@ -326,7 +386,10 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/register'
+    | '/home/documents'
+    | '/home/manage-family'
     | '/home/user-profile'
+    | '/home/vaccination'
     | '/home'
     | '/home/families'
     | '/home/health-profile'
@@ -342,7 +405,10 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/register'
+    | '/_layout/home/documents'
+    | '/_layout/home/manage-family'
     | '/_layout/home/user-profile'
+    | '/_layout/home/vaccination'
     | '/_layout/home/'
     | '/_layout/home/families/'
     | '/_layout/home/health-profile/'
@@ -395,7 +461,10 @@ export const routeTree = rootRoute
     "/_layout": {
       "filePath": "_layout.tsx",
       "children": [
+        "/_layout/home/documents",
+        "/_layout/home/manage-family",
         "/_layout/home/user-profile",
+        "/_layout/home/vaccination",
         "/_layout/home/",
         "/_layout/home/families/",
         "/_layout/home/health-profile/",
@@ -417,8 +486,20 @@ export const routeTree = rootRoute
     "/register": {
       "filePath": "register.tsx"
     },
+    "/_layout/home/documents": {
+      "filePath": "_layout/home/documents.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/home/manage-family": {
+      "filePath": "_layout/home/manage-family.tsx",
+      "parent": "/_layout"
+    },
     "/_layout/home/user-profile": {
       "filePath": "_layout/home/user-profile.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/home/vaccination": {
+      "filePath": "_layout/home/vaccination.tsx",
       "parent": "/_layout"
     },
     "/_layout/home/": {

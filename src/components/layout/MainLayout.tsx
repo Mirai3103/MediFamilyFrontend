@@ -14,6 +14,7 @@ import {
 	FiBell,
 	FiLogOut,
 	FiUser,
+	FiTerminal,
 } from "react-icons/fi";
 import { cn } from "@/lib/utils";
 // import { useAuth } from "@/hooks/useAuth";
@@ -30,45 +31,6 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import useUserStore from "@/stores/authStore";
 
-// Định nghĩa các menu item
-const menuItems = [
-	{
-		path: "/home",
-		label: "Tổng quan",
-		icon: <FiHome className="mr-3 h-4 w-4" />,
-	},
-	{
-		path: "/home/families",
-		label: "Gia đình",
-		icon: <FiUsers className="mr-3 h-4 w-4" />,
-	},
-	{
-		path: "/home/health-profile",
-		label: "Hồ sơ y tế",
-		icon: <FiActivity className="mr-3 h-4 w-4" />,
-	},
-	{
-		path: "/vaccination",
-		label: "Tiêm ngừa",
-		icon: <FiCheckCircle className="mr-3 h-4 w-4" />,
-	},
-	{
-		path: "/documents",
-		label: "Tài liệu",
-		icon: <FiFileText className="mr-3 h-4 w-4" />,
-	},
-	{
-		path: "/reminders",
-		label: "Nhắc nhở",
-		icon: <FiCalendar className="mr-3 h-4 w-4" />,
-	},
-	{
-		path: "/sharing",
-		label: "Chia sẻ hồ sơ",
-		icon: <FiShare2 className="mr-3 h-4 w-4" />,
-	},
-];
-
 interface MainLayoutProps {
 	children: React.ReactNode;
 }
@@ -79,6 +41,53 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 	const user = useUserStore((state) => state.profile);
 	const logout = useUserStore((state) => state.logout);
 	const [sidebarOpen, setSidebarOpen] = useState(false);
+	const ability = useUserStore((state) => state.ability);
+
+	const menuItems = React.useMemo(() => {
+		return [
+			{
+				path: "/home",
+				label: "Tổng quan",
+				icon: <FiHome className="mr-3 h-4 w-4" />,
+			},
+			{
+				path: "/home/families",
+				label: "Gia đình",
+				icon: <FiUsers className="mr-3 h-4 w-4" />,
+			},
+			{
+				path: "/home/manage-family",
+				label: "Gia đình được quản lý",
+				icon: <FiTerminal className="mr-3 h-4 w-4" />,
+				isRender: ability?.can("manage", "FamilyDoctor"),
+			},
+			{
+				path: "/home/health-profile",
+				label: "Hồ sơ y tế",
+				icon: <FiActivity className="mr-3 h-4 w-4" />,
+			},
+			{
+				path: "/home/vaccination",
+				label: "Tiêm ngừa",
+				icon: <FiCheckCircle className="mr-3 h-4 w-4" />,
+			},
+			{
+				path: "/home/documents",
+				label: "Tài liệu",
+				icon: <FiFileText className="mr-3 h-4 w-4" />,
+			},
+			{
+				path: "/home/reminders",
+				label: "Nhắc nhở",
+				icon: <FiCalendar className="mr-3 h-4 w-4" />,
+			},
+			{
+				path: "/home/sharing",
+				label: "Chia sẻ hồ sơ",
+				icon: <FiShare2 className="mr-3 h-4 w-4" />,
+			},
+		].filter((item) => item.isRender !== false);
+	}, [ability]);
 
 	const handleLogout = async () => {
 		await logout();
