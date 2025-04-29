@@ -21,6 +21,8 @@ import AddMemberForm from "./AddMemberForm";
 import useUserStore from "@/stores/authStore";
 import { useNavigate } from "@tanstack/react-router";
 import { ShareDrawer } from "@/components/share-drawer";
+import { Can } from "@/contexts/AbilityContext";
+import { subject } from "@casl/ability";
 
 interface FamilyDetailPageProps {
 	family: Family;
@@ -29,6 +31,7 @@ const FamilyDetailPage = ({ family }: FamilyDetailPageProps) => {
 	const [activeTab, setActiveTab] = useState("members");
 	const [isAddMemberDialogOpen, setIsAddMemberDialogOpen] = useState(false);
 	const [isEditFamilyDialogOpen, setIsEditFamilyDialogOpen] = useState(false);
+	const ability = useUserStore((state) => state.ability);
 
 	const currentUserProfileId = useUserStore(
 		(state) => state.profile?.profile?.id || state.profile?.id
@@ -62,10 +65,18 @@ const FamilyDetailPage = ({ family }: FamilyDetailPageProps) => {
 
 				<TabsContent value="members" className="space-y-6">
 					{/* Thêm thành viên mới */}
-					{family!.owner!.id === currentUserProfileId && (
-						<div className="flex gap-x-2 justify-end">
-							<ShareDrawer type="family" familyId={family.id!} />
 
+					<div className="flex gap-x-2 justify-end">
+						<Can
+							I="share"
+							a={subject("FamilyMember", family) as any}
+						>
+							<ShareDrawer type="family" familyId={family.id!} />
+						</Can>
+						<Can
+							I="create"
+							a={subject("FamilyMember", family) as any}
+						>
 							<Dialog
 								open={isAddMemberDialogOpen}
 								onOpenChange={setIsAddMemberDialogOpen}
@@ -84,8 +95,8 @@ const FamilyDetailPage = ({ family }: FamilyDetailPageProps) => {
 									}
 								/>
 							</Dialog>
-						</div>
-					)}
+						</Can>
+					</div>
 
 					{/* Danh sách thành viên */}
 					<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

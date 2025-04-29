@@ -56,6 +56,8 @@ import {
 	useGetDoctorByFamily,
 } from "@/queries/generated/doctor-family-controller/doctor-family-controller";
 import AddDoctorDrawer from "@/components/AddDoctorDrawer";
+import { Can } from "@/contexts/AbilityContext";
+import { subject } from "@casl/ability";
 
 // Zod schema based on the provided validation annotations
 const familySchema = z.object({
@@ -217,24 +219,42 @@ export default function FamilyInfo({ family }: FamilyInfoProps) {
 							Thông tin gia đình
 						</CardTitle>
 						<div className="flex gap-2">
-							<Button
-								variant="outline"
-								size="sm"
-								className="flex items-center gap-1"
-								onClick={() => setIsEditModalOpen(true)}
+							<Can
+								I="update"
+								a={
+									subject("FamilyProfile", {
+										...family,
+									}) as any
+								}
 							>
-								<FiEdit2 className="h-4 w-4" />
-								Sửa
-							</Button>
-							<Button
-								variant="destructive"
-								size="sm"
-								className="flex items-center gap-1"
-								onClick={() => setIsDeleteDialogOpen(true)}
+								<Button
+									variant="outline"
+									size="sm"
+									className="flex items-center gap-1"
+									onClick={() => setIsEditModalOpen(true)}
+								>
+									<FiEdit2 className="h-4 w-4" />
+									Sửa
+								</Button>
+							</Can>
+							<Can
+								I="delete"
+								a={
+									subject("FamilyProfile", {
+										...family,
+									}) as any
+								}
 							>
-								<FiTrash2 className="h-4 w-4" />
-								Xoá
-							</Button>
+								<Button
+									variant="destructive"
+									size="sm"
+									className="flex items-center gap-1"
+									onClick={() => setIsDeleteDialogOpen(true)}
+								>
+									<FiTrash2 className="h-4 w-4" />
+									Xoá
+								</Button>
+							</Can>
 						</div>
 					</div>
 					<CardDescription>
@@ -355,19 +375,28 @@ export default function FamilyInfo({ family }: FamilyInfoProps) {
 								<div>
 									{doctorOfFamily && (
 										// delete doctor button
-										<Button
-											variant="destructive"
-											size="sm"
-											className="flex items-center gap-1"
-											onClick={() =>
-												setIsRemoveDoctorDialogOpen(
-													true
-												)
+										<Can
+											I="manage"
+											an={
+												subject("FamilyDoctor", {
+													...family,
+												}) as any
 											}
 										>
-											<FiTrash2 className="h-4 w-4" />
-											Gỡ bỏ bác sĩ
-										</Button>
+											<Button
+												variant="destructive"
+												size="sm"
+												className="flex items-center gap-1"
+												onClick={() =>
+													setIsRemoveDoctorDialogOpen(
+														true
+													)
+												}
+											>
+												<FiTrash2 className="h-4 w-4" />
+												Gỡ bỏ bác sĩ
+											</Button>
+										</Can>
 									)}
 								</div>
 							</div>

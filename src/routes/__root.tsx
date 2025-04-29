@@ -9,7 +9,7 @@ import { createMongoAbility } from "@casl/ability";
 export const Route = createRootRoute({
 	component: RootComponent,
 });
-
+const EMPTY_ABILITY = createMongoAbility() as any;
 function RootComponent() {
 	const { fetchUserProfile, ability } = useUserStore();
 	useEffect(() => {
@@ -18,7 +18,7 @@ function RootComponent() {
 
 	return (
 		<>
-			<AbilityContext.Provider value={ability || createMongoAbility()}>
+			<AbilityContext.Provider value={ability || EMPTY_ABILITY}>
 				<Toaster />
 				<Outlet />
 				<TanStackRouterDevtools position="bottom-right" />

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // import { Input } from "@/components/ui/input"; // Search moved to RecordsTabContent
-import { FileText, Pill, Clipboard, HeartPulse, Syringe } from "lucide-react";
+import { Clipboard, Syringe } from "lucide-react";
 
 // Import the new tab content components
 import { RecordsTabContent } from "./RecordsTabContent";
@@ -13,17 +13,28 @@ import { VaccinationsTabContent } from "./VaccinationsTabContent";
 
 interface RecordTabContainerProps {
 	profile: ProfileDTO;
+	canRead?: boolean;
+	canUpdate?: boolean;
 }
 
-export function RecordTabContainer({ profile }: RecordTabContainerProps) {
+export function RecordTabContainer({
+	profile,
+	canRead = true,
+	canUpdate = true,
+}: RecordTabContainerProps) {
 	const { data: records = [] } = useGetAllMedicalRecords(profile?.id!, {
 		query: {
 			enabled: !!profile?.id,
 		},
 	});
 
-	const [activeTab, setActiveTab] = useState("overview");
-
+	const [activeTab, setActiveTab] = useState("records");
+	if (!canRead)
+		return (
+			<div className="text-center text-muted-foreground">
+				Không có quyền truy cập vào lịch sử khám bệnh này
+			</div>
+		);
 	return (
 		<div className="flex-grow p-4 md:p-6 lg:p-8 bg-white rounded-2xl shadow-sm">
 			<Tabs
@@ -33,13 +44,13 @@ export function RecordTabContainer({ profile }: RecordTabContainerProps) {
 			>
 				<div className="overflow-x-auto pb-2">
 					<TabsList className="bg-gray-100 border border-gray-200">
-						<TabsTrigger
+						{/* <TabsTrigger
 							value="overview"
 							className="data-[state=active]:bg-white data-[state=active]:text-health-blue data-[state=active]:shadow-sm"
 						>
 							<FileText className="mr-1.5 h-4 w-4" />
 							Overview
-						</TabsTrigger>
+						</TabsTrigger> */}
 						<TabsTrigger
 							value="records"
 							className="data-[state=active]:bg-white data-[state=active]:text-health-blue data-[state=active]:shadow-sm"
@@ -47,13 +58,13 @@ export function RecordTabContainer({ profile }: RecordTabContainerProps) {
 							<Clipboard className="mr-1.5 h-4 w-4" />
 							Records
 						</TabsTrigger>
-						<TabsTrigger
+						{/* <TabsTrigger
 							value="medications"
 							className="data-[state=active]:bg-white data-[state=active]:text-health-blue data-[state=active]:shadow-sm"
 						>
 							<Pill className="mr-1.5 h-4 w-4" />
 							Medications
-						</TabsTrigger>
+						</TabsTrigger> */}
 						<TabsTrigger
 							value="vaccinations"
 							className="data-[state=active]:bg-white data-[state=active]:text-health-blue data-[state=active]:shadow-sm"
@@ -61,13 +72,13 @@ export function RecordTabContainer({ profile }: RecordTabContainerProps) {
 							<Syringe className="mr-1.5 h-4 w-4" />
 							Vaccinations
 						</TabsTrigger>
-						<TabsTrigger
+						{/* <TabsTrigger
 							value="vitals"
 							className="data-[state=active]:bg-white data-[state=active]:text-health-blue data-[state=active]:shadow-sm"
 						>
 							<HeartPulse className="mr-1.5 h-4 w-4" />
 							Vitals
-						</TabsTrigger>
+						</TabsTrigger> */}
 						{/* Add other tabs like Appointments if needed */}
 					</TabsList>
 				</div>

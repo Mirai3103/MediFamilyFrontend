@@ -12,7 +12,13 @@ type Subjects =
 	| "User"
 	| "all"
 	| "FamilyDoctor"
-	| "FamilyProfile";
+	| "FamilyProfile"
+	| "FamilyMember"
+	| "MemberProfile"
+	| "MemberDocument"
+	| "MemberRecord"
+	| "MemberHealth"
+	| "Household";
 
 export type AppAbility = MongoAbility<[Actions, Subjects]>;
 
@@ -25,10 +31,32 @@ export function defineAbilityFor(user: UserDTO) {
 		can("manage", "all");
 	}
 	if (user.role === UserRole.ROLE_DOCTOR) {
-		can("manage", "FamilyDoctor");
+		can("manage", "Household");
 	}
-	can("share", "FamilyProfile", {
+	can("manage", "FamilyProfile", {
 		ownerId: user.profile?.id!,
 	} satisfies Pick<FamilyDTO, "ownerId"> as any);
+	can("manage", "FamilyMember", {
+		ownerId: user.profile?.id!,
+	} satisfies Pick<FamilyDTO, "ownerId"> as any);
+
+	can("manage", "MemberProfile", { ownerId: user?.profile?.id } as any);
+	can("manage", "MemberProfile", { profileId: user?.profile?.id } as any);
+
+	can("manage", "FamilyDoctor", { ownerId: user.profile?.id! } satisfies Pick<
+		FamilyDTO,
+		"ownerId"
+	> as any);
+
+	// chủ gia đình có quảnlý quyền quản lý tất cả thành viên trong gia đình
+	can("manage", "MemberDocument", { ownerId: user?.profile?.id } as any);
+	can("manage", "MemberHealth", { ownerId: user?.profile?.id } as any);
+	can("manage", "MemberRecord", { ownerId: user?.profile?.id } as any);
+	// hoặc 	// người dùng có quyền quản lý hồ sơ của chính mình
+	can("manage", "MemberDocument", { profileId: user?.profile?.id } as any);
+	can("manage", "MemberHealth", { profileId: user?.profile?.id } as any);
+	can("manage", "MemberRecord", { profileId: user?.profile?.id } as any);
+
+	console.log(rules);
 	return build();
 }

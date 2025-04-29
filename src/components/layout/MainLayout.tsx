@@ -59,7 +59,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 				path: "/home/manage-family",
 				label: "Gia đình được quản lý",
 				icon: <FiTerminal className="mr-3 h-4 w-4" />,
-				isRender: ability?.can("manage", "FamilyDoctor"),
+				isRender: ability?.can("manage", "Household"),
 			},
 			{
 				path: "/home/health-profile",

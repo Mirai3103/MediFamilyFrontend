@@ -15,9 +15,15 @@ import { toast } from "sonner";
 
 interface PersonalInfoSectionProps {
 	profile: Profile;
+	canRead?: boolean;
+	canUpdate?: boolean;
 }
 
-const PersonalInfoSection = ({ profile }: PersonalInfoSectionProps) => {
+const PersonalInfoSection = ({
+	profile,
+	canRead = true,
+	canUpdate = true,
+}: PersonalInfoSectionProps) => {
 	const [isEditMode, setIsEditMode] = useState(false);
 
 	const handleSubmitSuccess = () => {
@@ -26,7 +32,12 @@ const PersonalInfoSection = ({ profile }: PersonalInfoSectionProps) => {
 		});
 		setIsEditMode(false);
 	};
-
+	if (!canRead)
+		return (
+			<div className="text-red-500">
+				Bạn không có quyền truy cập vào thông tin này
+			</div>
+		);
 	return (
 		<Card>
 			<CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -37,7 +48,7 @@ const PersonalInfoSection = ({ profile }: PersonalInfoSectionProps) => {
 					</CardDescription>
 				</div>
 
-				{!isEditMode && (
+				{!isEditMode && canUpdate && (
 					<Button
 						onClick={() => setIsEditMode(true)}
 						variant="outline"

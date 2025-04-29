@@ -66,6 +66,8 @@ import { getImageViewUrl } from "@/utils/file";
 
 interface MedicalDocumentsTabProps {
 	profile: ProfileDTO;
+	canRead?: boolean;
+	canUpdate?: boolean;
 }
 
 // Zod schema for document form validation
@@ -76,7 +78,11 @@ const documentFormSchema = z.object({
 
 type DocumentFormValues = z.infer<typeof documentFormSchema>;
 type ProfileDocumentDto = ProfileDocument;
-const MedicalDocumentsTab = ({ profile }: MedicalDocumentsTabProps) => {
+const MedicalDocumentsTab = ({
+	profile,
+	canRead = true,
+	canUpdate = true,
+}: MedicalDocumentsTabProps) => {
 	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 	const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
@@ -194,6 +200,11 @@ const MedicalDocumentsTab = ({ profile }: MedicalDocumentsTabProps) => {
 				note: values.note || "",
 				profileId: profile.id!,
 			},
+			params: {
+				name: values.name,
+				note: values.note || "",
+				profileId: profile.id!,
+			},
 		});
 
 		setIsAddDialogOpen(false);
@@ -208,6 +219,11 @@ const MedicalDocumentsTab = ({ profile }: MedicalDocumentsTabProps) => {
 			id: currentDocument.id!,
 			data: {
 				newFiles: files,
+				name: values.name,
+				note: values.note || "",
+				removeFiles: fileRemoveList,
+			},
+			params: {
 				name: values.name,
 				note: values.note || "",
 				removeFiles: fileRemoveList,
@@ -247,6 +263,12 @@ const MedicalDocumentsTab = ({ profile }: MedicalDocumentsTabProps) => {
 		return format(new Date(dateString), "dd/MM/yyyy HH:mm");
 	};
 
+	if (!canRead)
+		return (
+			<div className="text-red-500">
+				Bạn không có quyền truy cập vào tài liệu y tế này.
+			</div>
+		);
 	return (
 		<Card>
 			<CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -256,10 +278,12 @@ const MedicalDocumentsTab = ({ profile }: MedicalDocumentsTabProps) => {
 						Quản lý các hồ sơ, đơn thuốc và tài liệu y tế
 					</CardDescription>
 				</div>
-				<Button onClick={handleOpenAddDialog}>
-					<Plus className="mr-2 h-4 w-4" />
-					Thêm tài liệu
-				</Button>
+				{canUpdate && (
+					<Button onClick={handleOpenAddDialog}>
+						<Plus className="mr-2 h-4 w-4" />
+						Thêm tài liệu
+					</Button>
+				)}
 			</CardHeader>
 
 			<CardContent>
@@ -323,26 +347,30 @@ const MedicalDocumentsTab = ({ profile }: MedicalDocumentsTabProps) => {
 													<Eye className="mr-2 h-4 w-4" />
 													Xem
 												</DropdownMenuItem>
-												<DropdownMenuItem
-													onClick={() =>
-														handleOpenEditDialog(
-															document
-														)
-													}
-												>
-													<Pencil className="mr-2 h-4 w-4" />
-													Chỉnh sửa
-												</DropdownMenuItem>
-												<DropdownMenuItem
-													onClick={() =>
-														handleOpenDeleteDialog(
-															document
-														)
-													}
-												>
-													<Trash2 className="mr-2 h-4 w-4" />
-													Xóa
-												</DropdownMenuItem>
+												{canUpdate && (
+													<>
+														<DropdownMenuItem
+															onClick={() =>
+																handleOpenEditDialog(
+																	document
+																)
+															}
+														>
+															<Pencil className="mr-2 h-4 w-4" />
+															Chỉnh sửa
+														</DropdownMenuItem>
+														<DropdownMenuItem
+															onClick={() =>
+																handleOpenDeleteDialog(
+																	document
+																)
+															}
+														>
+															<Trash2 className="mr-2 h-4 w-4" />
+															Xóa
+														</DropdownMenuItem>
+													</>
+												)}
 											</DropdownMenuContent>
 										</DropdownMenu>
 									</TableCell>

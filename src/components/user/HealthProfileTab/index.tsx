@@ -15,9 +15,15 @@ import { toast } from "sonner";
 
 interface HealthProfileTabProps {
 	profile: ProfileDTO;
+	canRead?: boolean;
+	canUpdate?: boolean;
 }
 
-const HealthProfileTab = ({ profile }: HealthProfileTabProps) => {
+const HealthProfileTab = ({
+	profile,
+	canRead = true,
+	canUpdate = true,
+}: HealthProfileTabProps) => {
 	const [isHealthEditMode, setIsHealthEditMode] = useState(false);
 
 	const handleSubmitSuccess = () => {
@@ -26,7 +32,12 @@ const HealthProfileTab = ({ profile }: HealthProfileTabProps) => {
 		});
 		setIsHealthEditMode(false);
 	};
-
+	if (!canRead)
+		return (
+			<div className="text-center text-muted-foreground">
+				Không có quyền truy cập vào thông tin sức khỏe cá nhân này
+			</div>
+		);
 	return (
 		<Card>
 			<CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -37,7 +48,7 @@ const HealthProfileTab = ({ profile }: HealthProfileTabProps) => {
 					</CardDescription>
 				</div>
 
-				{!isHealthEditMode && (
+				{!isHealthEditMode && canUpdate && (
 					<Button
 						onClick={() => setIsHealthEditMode(true)}
 						variant="outline"

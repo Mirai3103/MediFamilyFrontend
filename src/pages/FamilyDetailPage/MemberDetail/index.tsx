@@ -4,7 +4,10 @@ import HealthProfileTab from "@/components/user/HealthProfileTab";
 import MedicalDocumentsTab from "@/components/user/MedicalDocumentsTab";
 import PersonalInfoSection from "@/components/user/PersonalInfoTab/PersonalInfoSection";
 import RecordTab from "@/components/user/RecordTab";
+import { Can } from "@/contexts/AbilityContext";
 import { FamilyDTO, ProfileDTO } from "@/models/generated";
+import useUserStore from "@/stores/authStore";
+import { subject } from "@casl/ability";
 import { useState } from "react";
 interface FamilyMemberDetailPageProps {
 	profile: ProfileDTO;
@@ -17,6 +20,7 @@ export default function FamilyMemberDetailPage({
 	memberId,
 }: FamilyMemberDetailPageProps) {
 	const [activeTab, setActiveTab] = useState("personal");
+	const ability = useUserStore((state) => state.ability);
 
 	return (
 		<div className="flex-1 container py-8 px-4 sm:px-6 lg:px-8">
@@ -36,11 +40,21 @@ export default function FamilyMemberDetailPage({
 						)}
 					</div>
 					{memberId && (
-						<ShareDrawer
-							familyId={family?.id!}
-							memberId={memberId}
-							type="member"
-						/>
+						<Can
+							I="share"
+							a={
+								subject("MemberProfile", {
+									ownerId: family?.ownerId,
+									profileId: profile.id,
+								}) as any
+							}
+						>
+							<ShareDrawer
+								familyId={family?.id!}
+								memberId={memberId}
+								type="member"
+							/>
+						</Can>
 					)}
 				</div>
 				<div className="flex flex-col gap-y-2">
@@ -65,16 +79,80 @@ export default function FamilyMemberDetailPage({
 					</Tabs>
 					<div className="md:col-span-3">
 						{activeTab === "personal" && (
-							<PersonalInfoSection profile={profile!} />
+							<PersonalInfoSection
+								profile={profile!}
+								canRead={ability?.can(
+									"read",
+									subject("MemberProfile", {
+										ownerId: family?.ownerId,
+										profileId: profile.id,
+									}) as any
+								)}
+								canUpdate={ability?.can(
+									"update",
+									subject("MemberProfile", {
+										ownerId: family?.ownerId,
+										profileId: profile.id,
+									}) as any
+								)}
+							/>
 						)}
 						{activeTab === "document" && (
-							<MedicalDocumentsTab profile={profile!} />
+							<MedicalDocumentsTab
+								profile={profile!}
+								canRead={ability?.can(
+									"read",
+									subject("MemberDocument", {
+										ownerId: family?.ownerId,
+										profileId: profile.id,
+									}) as any
+								)}
+								canUpdate={ability?.can(
+									"update",
+									subject("MemberDocument", {
+										ownerId: family?.ownerId,
+										profileId: profile.id,
+									}) as any
+								)}
+							/>
 						)}
 						{activeTab === "health" && (
-							<HealthProfileTab profile={profile!} />
+							<HealthProfileTab
+								profile={profile!}
+								canRead={ability?.can(
+									"read",
+									subject("MemberHealth", {
+										ownerId: family?.ownerId,
+										profileId: profile.id,
+									}) as any
+								)}
+								canUpdate={ability?.can(
+									"update",
+									subject("MemberHealth", {
+										ownerId: family?.ownerId,
+										profileId: profile.id,
+									}) as any
+								)}
+							/>
 						)}
 						{activeTab === "record" && (
-							<RecordTab profile={profile!} />
+							<RecordTab
+								profile={profile!}
+								canRead={ability?.can(
+									"read",
+									subject("MemberRecord", {
+										ownerId: family?.ownerId,
+										profileId: profile.id,
+									}) as any
+								)}
+								canUpdate={ability?.can(
+									"update",
+									subject("MemberRecord", {
+										ownerId: family?.ownerId,
+										profileId: profile.id,
+									}) as any
+								)}
+							/>
 						)}
 					</div>
 				</div>
