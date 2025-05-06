@@ -2,7 +2,7 @@ import { User, UserDTO } from "@/models/generated";
 import { create } from "zustand";
 import axios from "axios";
 import { me } from "@/queries/generated/profile-controller/profile-controller";
-import { AppAbility, defineAbilityFor } from "@/lib/casl";
+import { AppAbility, defineAbilityFor, mergeAbilities } from "@/lib/casl";
 
 interface userState {
 	isAuthenticated: boolean;
@@ -14,6 +14,7 @@ interface userState {
 	setProfile: (profile: User | null | undefined) => void;
 	fetchUserProfile: () => Promise<void>;
 	logout: () => void;
+	mergeAbility: (ability: AppAbility) => void;
 }
 
 const useUserStore = create<userState>((set) => ({
@@ -36,6 +37,13 @@ const useUserStore = create<userState>((set) => ({
 		});
 
 		localStorage.removeItem("access_token");
+	},
+	mergeAbility: (ability) => {
+		set((state) => ({
+			ability: state.ability
+				? mergeAbilities(state.ability, ability)
+				: ability,
+		}));
 	},
 	fetchUserProfile: async () => {
 		try {

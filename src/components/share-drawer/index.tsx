@@ -455,7 +455,7 @@ export function ShareDrawer({
 															className="flex items-center"
 															onClick={() => {
 																navigator.clipboard.writeText(
-																	`${window.location.origin}/share/${record.id}`
+																	`${window.location.origin}/home/share/${record.id}`
 																);
 																toast.success(
 																	"Đã sao chép đường dẫn chia sẻ!"
