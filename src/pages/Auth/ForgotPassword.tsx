@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/form";
 import { useNavigate } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
+import { useSendResetPasswordEmail } from "@/queries/generated/auth-controller/auth-controller";
 
 const forgotPasswordSchema = z.object({
 	email: z.string().email({ message: "Email không hợp lệ" }),
@@ -40,9 +41,25 @@ export function ForgotPassword() {
 		},
 		mode: "onChange",
 	});
+	const mutate = useSendResetPasswordEmail({
+		mutation: {
+			onSuccess: () => {
+				setSubmitted(true);
+			},
+			onError: (error) => {
+				console.error("Error sending reset password email:", error);
+				form.setError("email", {
+					type: "manual",
+					message: "Có lỗi xảy ra. Vui lòng thử lại sau.",
+				});
+			},
+		},
+	});
 
 	const onSubmit = (data: ForgotPasswordFormValues) => {
-		console.log("Forgot password form submitted:", data);
+		mutate.mutate({
+			data: data.email,
+		});
 		setSubmitted(true);
 	};
 

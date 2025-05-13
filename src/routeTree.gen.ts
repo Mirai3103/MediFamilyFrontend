@@ -11,6 +11,7 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as ResetPasswordImport } from './routes/reset-password'
 import { Route as RegisterImport } from './routes/register'
 import { Route as LoginImport } from './routes/login'
 import { Route as ForgotPasswordImport } from './routes/forgot-password'
@@ -32,6 +33,12 @@ import { Route as LayoutHomeShareIdImport } from './routes/_layout/home/share.$i
 import { Route as LayoutHomeFamiliesFamilyIdMembersMemberIdImport } from './routes/_layout/home/families/$familyId/members/$memberId'
 
 // Create/Update Routes
+
+const ResetPasswordRoute = ResetPasswordImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const RegisterRoute = RegisterImport.update({
   id: '/register',
@@ -197,6 +204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterImport
       parentRoute: typeof rootRoute
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordImport
+      parentRoute: typeof rootRoute
+    }
     '/_layout/home/documents': {
       id: '/_layout/home/documents'
       path: '/home/documents'
@@ -336,6 +350,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/home/documents': typeof LayoutHomeDocumentsRoute
   '/home/manage-family': typeof LayoutHomeManageFamilyRoute
   '/home/user-profile': typeof LayoutHomeUserProfileRoute
@@ -358,6 +373,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/home/documents': typeof LayoutHomeDocumentsRoute
   '/home/manage-family': typeof LayoutHomeManageFamilyRoute
   '/home/user-profile': typeof LayoutHomeUserProfileRoute
@@ -381,6 +397,7 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/_layout/home/documents': typeof LayoutHomeDocumentsRoute
   '/_layout/home/manage-family': typeof LayoutHomeManageFamilyRoute
   '/_layout/home/user-profile': typeof LayoutHomeUserProfileRoute
@@ -405,6 +422,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/register'
+    | '/reset-password'
     | '/home/documents'
     | '/home/manage-family'
     | '/home/user-profile'
@@ -426,6 +444,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/register'
+    | '/reset-password'
     | '/home/documents'
     | '/home/manage-family'
     | '/home/user-profile'
@@ -447,6 +466,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/register'
+    | '/reset-password'
     | '/_layout/home/documents'
     | '/_layout/home/manage-family'
     | '/_layout/home/user-profile'
@@ -470,6 +490,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -479,6 +500,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
 }
 
 export const routeTree = rootRoute
@@ -496,7 +518,8 @@ export const routeTree = rootRoute
         "/about",
         "/forgot-password",
         "/login",
-        "/register"
+        "/register",
+        "/reset-password"
       ]
     },
     "/": {
@@ -531,6 +554,9 @@ export const routeTree = rootRoute
     },
     "/register": {
       "filePath": "register.tsx"
+    },
+    "/reset-password": {
+      "filePath": "reset-password.tsx"
     },
     "/_layout/home/documents": {
       "filePath": "_layout/home/documents.tsx",
