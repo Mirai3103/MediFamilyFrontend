@@ -18,7 +18,6 @@ import {
 import dayjs from "dayjs";
 import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { useShareFamilyIds } from "@/stores/shareStore";
 
 const createFamilyRequestSchema = z.object({
 	familyName: z
@@ -41,17 +40,22 @@ const createFamilyRequestSchema = z.object({
 		.max(100, { message: "Email không được vượt quá 100 ký tự." }),
 });
 
-const ShareFamiliesPage = () => {
+interface ShareFamiliesPageProps {
+	allowFamilyIds: number[];
+}
+
+
+const ShareFamiliesPage = ({allowFamilyIds}: ShareFamiliesPageProps) => {
+	console.log({allowFamilyIds});
 	const [searchTerm, setSearchTerm] = useState("");
-	const familyId = useShareFamilyIds();
 	const queryClient = useQueryClient();
 	const { data, isLoading, isError } = useGetFamiliesByIds(
 		{
-			ids: familyId,
+			ids: allowFamilyIds,
 		},
 		{
 			query: {
-				enabled: !!familyId && familyId.length > 0,
+				enabled: !!allowFamilyIds && allowFamilyIds.length > 0,
 			},
 		}
 	);

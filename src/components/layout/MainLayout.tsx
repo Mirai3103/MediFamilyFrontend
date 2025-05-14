@@ -82,8 +82,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 				icon: <FiCalendar className="mr-3 h-4 w-4" />,
 			},
 			{
-				path: "/home/sharing",
-				label: "Chia sẻ hồ sơ",
+				path: "/home/share/family",
+				label: "Gia đình được chia sẻ",
 				icon: <FiShare2 className="mr-3 h-4 w-4" />,
 			},
 		].filter((item) => item.isRender !== false);
