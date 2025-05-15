@@ -18,6 +18,7 @@ import { Route as ForgotPasswordImport } from './routes/forgot-password'
 import { Route as AboutImport } from './routes/about'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as IndexImport } from './routes/index'
+import { Route as CallbackProviderImport } from './routes/callback.$provider'
 import { Route as LayoutHomeIndexImport } from './routes/_layout/home/index'
 import { Route as LayoutHomeVaccinationImport } from './routes/_layout/home/vaccination'
 import { Route as LayoutHomeUserProfileImport } from './routes/_layout/home/user-profile'
@@ -72,6 +73,12 @@ const LayoutRoute = LayoutImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const CallbackProviderRoute = CallbackProviderImport.update({
+  id: '/callback/$provider',
+  path: '/callback/$provider',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -209,6 +216,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordImport
+      parentRoute: typeof rootRoute
+    }
+    '/callback/$provider': {
+      id: '/callback/$provider'
+      path: '/callback/$provider'
+      fullPath: '/callback/$provider'
+      preLoaderRoute: typeof CallbackProviderImport
       parentRoute: typeof rootRoute
     }
     '/_layout/home/documents': {
@@ -351,6 +365,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/callback/$provider': typeof CallbackProviderRoute
   '/home/documents': typeof LayoutHomeDocumentsRoute
   '/home/manage-family': typeof LayoutHomeManageFamilyRoute
   '/home/user-profile': typeof LayoutHomeUserProfileRoute
@@ -374,6 +389,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/callback/$provider': typeof CallbackProviderRoute
   '/home/documents': typeof LayoutHomeDocumentsRoute
   '/home/manage-family': typeof LayoutHomeManageFamilyRoute
   '/home/user-profile': typeof LayoutHomeUserProfileRoute
@@ -398,6 +414,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/callback/$provider': typeof CallbackProviderRoute
   '/_layout/home/documents': typeof LayoutHomeDocumentsRoute
   '/_layout/home/manage-family': typeof LayoutHomeManageFamilyRoute
   '/_layout/home/user-profile': typeof LayoutHomeUserProfileRoute
@@ -423,6 +440,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/reset-password'
+    | '/callback/$provider'
     | '/home/documents'
     | '/home/manage-family'
     | '/home/user-profile'
@@ -445,6 +463,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/reset-password'
+    | '/callback/$provider'
     | '/home/documents'
     | '/home/manage-family'
     | '/home/user-profile'
@@ -467,6 +486,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/reset-password'
+    | '/callback/$provider'
     | '/_layout/home/documents'
     | '/_layout/home/manage-family'
     | '/_layout/home/user-profile'
@@ -491,6 +511,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  CallbackProviderRoute: typeof CallbackProviderRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -501,6 +522,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  CallbackProviderRoute: CallbackProviderRoute,
 }
 
 export const routeTree = rootRoute
@@ -519,7 +541,8 @@ export const routeTree = rootRoute
         "/forgot-password",
         "/login",
         "/register",
-        "/reset-password"
+        "/reset-password",
+        "/callback/$provider"
       ]
     },
     "/": {
@@ -557,6 +580,9 @@ export const routeTree = rootRoute
     },
     "/reset-password": {
       "filePath": "reset-password.tsx"
+    },
+    "/callback/$provider": {
+      "filePath": "callback.$provider.tsx"
     },
     "/_layout/home/documents": {
       "filePath": "_layout/home/documents.tsx",
