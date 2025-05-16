@@ -1,0 +1,1 @@
+import{b as o,u as r,R as c}from"./index-BW1v2Y3o.js";function n(){const e=o(a=>a.isAuthenticated),t=r();c.useEffect(()=>{let s=new URLSearchParams(window.location.search).get("redirectTo")||"/home";e&&t({to:s})},[e,t])}export{n as u};
