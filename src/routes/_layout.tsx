@@ -1,16 +1,24 @@
 import MainLayout from "@/components/layout/MainLayout";
 import useUserStore from "@/stores/authStore";
 import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
+import { useGetManagedFamilies } from "@/queries/generated/family-controller/family-controller";
+import { defineAbilityForDoctor } from "@/lib/casl";
 
 export const Route = createFileRoute("/_layout")({
 	component: RouteComponent,
 });
 
 function RouteComponent() {
-	const { isAuthenticated, isLoading, fetchUserProfile } = useUserStore();
+	const {
+		isAuthenticated,
+		isLoading,
+		fetchUserProfile,
+		mergeAbility,
+		profile,
+	} = useUserStore();
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -24,6 +32,33 @@ function RouteComponent() {
 			navigate({ to: "/login?redirectTo=" + window.location.pathname });
 		}
 	}, [isLoading, isAuthenticated, navigate]);
+
+	const { data } = useGetManagedFamilies(
+		{
+			page: 0,
+			size: 1000,
+			sort: ["createdAt,desc"],
+			status: "ACCEPTED",
+
+			// search,
+		},
+		{
+			query: {
+				enabled: profile?.role == "ROLE_DOCTOR",
+			},
+		}
+	);
+	React.useEffect(() => {
+		if (data && data.content && profile) {
+			setTimeout(() => {
+				mergeAbility(
+					defineAbilityForDoctor(
+						data!.content!.map((item) => item.familyId!)
+					)
+				);
+			}, 1000);
+		}
+	}, [data, profile]);
 
 	if (isLoading) {
 		return (

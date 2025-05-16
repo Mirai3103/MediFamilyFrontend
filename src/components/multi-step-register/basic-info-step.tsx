@@ -10,16 +10,6 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar } from "@/components/ui/calendar";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
 
 export function BasicInfoStep() {
 	const {
@@ -87,44 +77,26 @@ export function BasicInfoStep() {
 				render={({ field }) => (
 					<FormItem className="flex flex-col">
 						<FormLabel>Ngày sinh</FormLabel>
-						<Popover>
-							<PopoverTrigger asChild>
-								<FormControl>
-									<Button
-										variant={"outline"}
-										className={`w-full justify-start text-left font-normal ${
-											!field.value
-												? "text-muted-foreground"
-												: ""
-										}`}
-									>
-										<CalendarIcon className="mr-2 h-4 w-4" />
-										{field.value ? (
-											format(field.value, "dd/MM/yyyy", {
-												locale: vi,
-											})
-										) : (
-											<span>Chọn ngày sinh</span>
-										)}
-									</Button>
-								</FormControl>
-							</PopoverTrigger>
-							<PopoverContent
-								className="w-auto p-0"
-								align="start"
-							>
-								<Calendar
-									mode="single"
-									selected={field.value}
-									onSelect={field.onChange}
-									disabled={(date) =>
-										date > new Date() ||
-										date < new Date("1900-01-01")
-									}
-									initialFocus
-								/>
-							</PopoverContent>
-						</Popover>
+						<FormControl>
+							<Input
+								type="date"
+								max={new Date().toISOString().split("T")[0]}
+								min="1900-01-01"
+								value={
+									field.value
+										? new Date(field.value)
+												.toISOString()
+												.split("T")[0]
+										: ""
+								}
+								onChange={(e) => {
+									const val = e.target.value;
+									field.onChange(
+										val ? new Date(val) : undefined
+									);
+								}}
+							/>
+						</FormControl>
 						<FormMessage />
 					</FormItem>
 				)}

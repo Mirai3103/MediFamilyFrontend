@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_layout/home/share/family")({
 });
 
 function RouteComponent() {
-	const ids = useShareIds()|| [];
+	const ids = useShareIds() || [];
 	const mergeAbility = useUserStore((state) => state.mergeAbility);
 	const me = useUserStore((state) => state.profile);
 	const profile = useUserStore((state) => state.profile);
@@ -29,16 +29,24 @@ function RouteComponent() {
 		},
 		{
 			query: {
-				enabled:  isFetched,
+				enabled: isFetched,
 			},
 		}
 	);
 	React.useEffect(() => {
 		if (data && profile) {
+			console.log("Ability merge");
 			mergeAbility(defineAbilityShare(data, profile));
 		}
 	}, [data, profile]);
-	console.log("data", data);
+	console.log(
+		"total allow family",
+		data?.map((item) => item.familyId!),
+		data,
+		isFetched,
+		!!me?.id,
+		me
+	);
 	return (
 		<ShareFamiliesPage
 			allowFamilyIds={data?.map((item) => item.familyId!) || []}

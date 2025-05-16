@@ -124,9 +124,28 @@ export function defineAbilityShare(
 
 		// 2) Nếu không chỉ định memberId → cấp toàn quyền manage trên Family & MemberProfile
 		if (!memberId) {
-			["FamilyProfile", "FamilyMember", "MemberProfile"].forEach(
-				(subject) => can("manage", subject as any, { familyId })
+			["FamilyProfile", "FamilyMember"].forEach((subject) =>
+				can("manage", subject as any, { familyId })
 			);
+			sharePermissions?.forEach(({ resourceType, permissionTypes }) => {
+				const cfg = RESOURCE_CONFIG[resourceType!];
+				if (!cfg || !permissionTypes) return;
+
+				permissionTypes.forEach((pt) => {
+					const actions = ACTIONS_MAP[pt];
+					if (!actions) return;
+
+					actions.forEach((action) =>
+						can(
+							action,
+							cfg.subject as any,
+							{
+								familyId,
+							} as any
+						)
+					);
+				});
+			});
 			return;
 		}
 
@@ -152,6 +171,25 @@ export function defineAbilityShare(
 		});
 	});
 
+	return build();
+}
+
+export function defineAbilityForDoctor(managedFamilies: number[]) {
+	const { can, build } = new AbilityBuilder<AppAbility>(createMongoAbility);
+	[
+		"FamilyProfile",
+		"FamilyMember",
+		"MemberProfile",
+		"MemberDocument",
+		"MemberHealth",
+		"MemberRecord",
+	].forEach((subject) =>
+		can(
+			"manage",
+			subject as any,
+			{ familyId: { $in: managedFamilies } } as any
+		)
+	);
 	return build();
 }
 

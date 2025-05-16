@@ -21,6 +21,17 @@ export default function FamilyMemberDetailPage({
 }: FamilyMemberDetailPageProps) {
 	const [activeTab, setActiveTab] = useState("personal");
 	const ability = useUserStore((state) => state.ability);
+	console.log(
+		ability?.can(
+			"read",
+			subject("MemberDocument", {
+				ownerId: family?.ownerId,
+				profileId: profile.id,
+			}) as any
+		),
+		ability?.rules,
+		ability
+	);
 
 	return (
 		<div className="flex-1 container py-8 px-4 sm:px-6 lg:px-8">
@@ -86,6 +97,7 @@ export default function FamilyMemberDetailPage({
 									subject("MemberProfile", {
 										ownerId: family?.ownerId,
 										profileId: profile.id,
+										familyId: family?.id,
 									}) as any
 								)}
 								canUpdate={ability?.can(
@@ -93,6 +105,7 @@ export default function FamilyMemberDetailPage({
 									subject("MemberProfile", {
 										ownerId: family?.ownerId,
 										profileId: profile.id,
+										familyId: family?.id,
 									}) as any
 								)}
 							/>
@@ -105,6 +118,7 @@ export default function FamilyMemberDetailPage({
 									subject("MemberDocument", {
 										ownerId: family?.ownerId,
 										profileId: profile.id,
+										familyId: family?.id,
 									}) as any
 								)}
 								canUpdate={ability?.can(
@@ -112,6 +126,7 @@ export default function FamilyMemberDetailPage({
 									subject("MemberDocument", {
 										ownerId: family?.ownerId,
 										profileId: profile.id,
+										familyId: family?.id,
 									}) as any
 								)}
 							/>
@@ -124,6 +139,7 @@ export default function FamilyMemberDetailPage({
 									subject("MemberHealth", {
 										ownerId: family?.ownerId,
 										profileId: profile.id,
+										familyId: family?.id,
 									}) as any
 								)}
 								canUpdate={ability?.can(
@@ -131,6 +147,7 @@ export default function FamilyMemberDetailPage({
 									subject("MemberHealth", {
 										ownerId: family?.ownerId,
 										profileId: profile.id,
+										familyId: family?.id,
 									}) as any
 								)}
 							/>
@@ -143,6 +160,7 @@ export default function FamilyMemberDetailPage({
 									subject("MemberRecord", {
 										ownerId: family?.ownerId,
 										profileId: profile.id,
+										familyId: family?.id,
 									}) as any
 								)}
 								canUpdate={ability?.can(
@@ -150,6 +168,7 @@ export default function FamilyMemberDetailPage({
 									subject("MemberRecord", {
 										ownerId: family?.ownerId,
 										profileId: profile.id,
+										familyId: family?.id,
 									}) as any
 								)}
 							/>

@@ -11,10 +11,12 @@ export const Route = createRootRoute({
 });
 const EMPTY_ABILITY = createMongoAbility() as any;
 function RootComponent() {
-	const { fetchUserProfile, ability } = useUserStore();
+	const { fetchUserProfile, ability, profile } = useUserStore();
 	useEffect(() => {
 		fetchUserProfile();
 	}, [fetchUserProfile]);
+
+	console.log("profile", profile);
 
 	return (
 		<>
