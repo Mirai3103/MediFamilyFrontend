@@ -15,9 +15,9 @@ import {
 	FiLogOut,
 	FiUser,
 	FiTerminal,
+	FiCheck,
 } from "react-icons/fi";
 import { cn } from "@/lib/utils";
-// import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +30,14 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import useUserStore from "@/stores/authStore";
+import {
+	useGetMyNotifications,
+	useMarkAllAsRead,
+	useMarkAsRead,
+} from "@/queries/generated/notification-controller/notification-controller";
+import { formatDistanceToNow } from "date-fns";
+import { vi } from "date-fns/locale";
+import { Badge } from "@/components/ui/badge";
 
 interface MainLayoutProps {
 	children: React.ReactNode;
@@ -94,83 +102,72 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 		navigate({ to: "/login" });
 	};
 
-	// Sidebar for desktop
-	const DesktopSidebar = () => (
-		<div className="hidden lg:flex h-screen w-64 flex-col fixed left-0 top-0 bottom-0 bg-sidebar border-r border-sidebar-border">
-			{/* Logo */}
-			<Link
-				className="h-16 flex items-center px-6 border-b border-sidebar-border"
-				to="/"
-			>
-				<FiActivity className="h-6 w-6 text-primary mr-2" />
-				<span className="text-xl font-bold">MedFamily</span>
-			</Link>
+	const { data: pagedNoti, refetch: refetchNotifications } =
+		useGetMyNotifications({
+			pageable: {
+				page: 0,
+				size: 30,
+				sort: ["createdAt,desc"],
+			},
+		});
 
-			{/* Menu items */}
-			<nav className="flex-1 overflow-y-auto py-4 px-4">
-				<ul className="space-y-2">
-					{menuItems.map((item) => (
-						<li key={item.path}>
-							<Link
-								to={item.path}
-								className={cn(
-									"flex items-center px-4 py-2.5 text-sm font-medium rounded-md transition-colors",
-									location.pathname.startsWith(item.path)
-										? "bg-sidebar-accent text-sidebar-accent-foreground"
-										: "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-								)}
-							>
-								{item.icon}
-								{item.label}
-							</Link>
-						</li>
-					))}
-				</ul>
-			</nav>
+	const notifications = pagedNoti?.content || [];
+	const unreadCount = notifications.filter((n) => !n.isRead).length;
 
-			{/* User profile at bottom */}
-			<div className="p-4 border-t border-sidebar-border">
-				<Link className="flex items-center" to="/home/user-profile">
-					<Avatar className="h-9 w-9">
-						<AvatarImage
-							src={
-								user?.profile?.avatarUrl ||
-								"https://placewaifu.com/image/300/300"
-							}
-							alt={user?.profile?.fullName!}
-						/>
-						<AvatarFallback>
-							{user?.profile?.fullName?.charAt(0) || "U"}
-						</AvatarFallback>
-					</Avatar>
-					<div className="ml-3 flex-1 min-w-0">
-						<p className="text-sm font-medium truncate">
-							{user?.profile?.fullName}
-						</p>
-						<p className="text-xs text-muted-foreground truncate">
-							{user?.email}
-						</p>
-					</div>
-					<Button variant="ghost" size="icon" onClick={handleLogout}>
-						<FiLogOut className="h-5 w-5" />
-					</Button>
-				</Link>
-			</div>
-		</div>
-	);
+	const markAsReadMutation = useMarkAsRead({
+		mutation: {
+			onSuccess: () => {
+				refetchNotifications();
+			},
+		},
+	});
 
-	// Mobile header and navigation
-	const MobileHeader = () => (
-		<header className="lg:hidden sticky top-0 z-40 h-16 flex items-center justify-between px-4 border-b bg-background border-border">
-			{/* Logo and menu button */}
+	const markAllAsReadMutation = useMarkAllAsRead({
+		mutation: {
+			onSuccess: () => {
+				refetchNotifications();
+			},
+		},
+	});
+
+	const handleMarkAsRead = (id: number) => {
+		markAsReadMutation.mutate({
+			id: id.toString(),
+		});
+	};
+
+	const handleMarkAllAsRead = () => {
+		markAllAsReadMutation.mutate();
+	};
+
+	const formatNotificationTime = (dateString: string) => {
+		if (!dateString) return "";
+		try {
+			return formatDistanceToNow(new Date(dateString), {
+				addSuffix: true,
+				locale: vi,
+			});
+		} catch (e) {
+			return dateString;
+		}
+	};
+
+	// Header component shared between mobile and desktop
+	const Header = () => (
+		<header className="sticky top-0 z-40 h-16 flex items-center justify-between px-4 border-b bg-background border-border">
+			{/* Logo and menu button for mobile */}
 			<div className="flex items-center">
 				<Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-					<SheetTrigger asChild>
-						<Button variant="ghost" size="icon" className="mr-2">
+					<SheetTrigger asChild className="lg:hidden">
+						<Button
+							variant="ghost"
+							size="icon"
+							className="mr-2 lg:hidden"
+						>
 							<FiMenu className="h-5 w-5" />
 						</Button>
 					</SheetTrigger>
-					<SheetContent side="left" className="w-72 p-0">
+					<SheetContent side="left" className="w-72 p-0 lg:hidden">
 						{/* Mobile sidebar content */}
 						<Link
 							className="h-16 flex items-center px-6 border-b border-border"
@@ -258,7 +255,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
 				<Link to="/" className="flex items-center">
 					<FiActivity className="h-6 w-6 text-primary mr-2" />
-					<span className="text-xl font-bold">MedFamily</span>
+					<span className="text-xl font-bold lg:hidden">
+						MedFamily
+					</span>
 				</Link>
 			</div>
 
@@ -272,38 +271,71 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 							className="relative"
 						>
 							<FiBell className="h-5 w-5" />
-							<span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary"></span>
+							{unreadCount > 0 && (
+								<Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-xs">
+									{unreadCount > 99 ? "99+" : unreadCount}
+								</Badge>
+							)}
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end" className="w-80">
 						<div className="flex items-center justify-between px-4 py-2 border-b">
 							<span className="font-medium">Thông báo</span>
-							<Button variant="ghost" size="sm">
+							<Button
+								variant="ghost"
+								size="sm"
+								onClick={handleMarkAllAsRead}
+								disabled={
+									unreadCount === 0 ||
+									markAllAsReadMutation.isPending
+								}
+							>
+								<FiCheck className="h-4 w-4 mr-1" />
 								Đánh dấu đã đọc
 							</Button>
 						</div>
 						<div className="max-h-80 overflow-y-auto">
-							<div className="py-2 px-4 border-b">
-								<p className="text-sm font-medium">
-									Nhắc nhở tiêm ngừa
-								</p>
-								<p className="text-xs text-muted-foreground mt-1">
-									Bé An có lịch tiêm ngừa vào ngày mai
-								</p>
-								<p className="text-xs text-muted-foreground mt-1">
-									1 giờ trước
-								</p>
-							</div>
-							{/* Có thể thêm các thông báo khác ở đây */}
-						</div>
-						<div className="p-2 text-center border-t">
-							<Button
-								variant="ghost"
-								size="sm"
-								className="w-full"
-							>
-								Xem tất cả
-							</Button>
+							{notifications.length === 0 ? (
+								<div className="py-6 text-center text-muted-foreground">
+									Không có thông báo nào
+								</div>
+							) : (
+								notifications.map((notification) => (
+									<div
+										key={notification.id}
+										className={cn(
+											"py-2 px-4 border-b hover:bg-accent/20 cursor-pointer",
+											!notification.isRead &&
+												"bg-accent/10"
+										)}
+										onClick={() => {
+											if (!notification.isRead) {
+												handleMarkAsRead(
+													notification.id!
+												);
+											}
+											// Handle navigation based on notification type here
+										}}
+									>
+										<div className="flex justify-between items-start">
+											<p className="text-sm font-medium">
+												{notification.title}
+											</p>
+											{!notification.isRead && (
+												<div className="h-2 w-2 rounded-full bg-primary mt-1 ml-2 flex-shrink-0"></div>
+											)}
+										</div>
+										<p className="text-xs text-muted-foreground mt-1">
+											{notification.content}
+										</p>
+										<p className="text-xs text-muted-foreground mt-1">
+											{formatNotificationTime(
+												notification.createdAt!
+											)}
+										</p>
+									</div>
+								))
+							)}
 						</div>
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -351,16 +383,81 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 		</header>
 	);
 
+	// Sidebar for desktop
+	const DesktopSidebar = () => (
+		<div className="hidden lg:flex h-screen w-64 flex-col fixed left-0 top-0 bottom-0 bg-sidebar border-r border-sidebar-border">
+			{/* Logo */}
+			<Link
+				className="h-16 flex items-center px-6 border-b border-sidebar-border"
+				to="/"
+			>
+				<FiActivity className="h-6 w-6 text-primary mr-2" />
+				<span className="text-xl font-bold">MedFamily</span>
+			</Link>
+
+			{/* Menu items */}
+			<nav className="flex-1 overflow-y-auto py-4 px-4">
+				<ul className="space-y-2">
+					{menuItems.map((item) => (
+						<li key={item.path}>
+							<Link
+								to={item.path}
+								className={cn(
+									"flex items-center px-4 py-2.5 text-sm font-medium rounded-md transition-colors",
+									location.pathname.startsWith(item.path)
+										? "bg-sidebar-accent text-sidebar-accent-foreground"
+										: "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+								)}
+							>
+								{item.icon}
+								{item.label}
+							</Link>
+						</li>
+					))}
+				</ul>
+			</nav>
+
+			{/* User profile at bottom */}
+			<div className="p-4 border-t border-sidebar-border">
+				<Link className="flex items-center" to="/home/user-profile">
+					<Avatar className="h-9 w-9">
+						<AvatarImage
+							src={
+								user?.profile?.avatarUrl ||
+								"https://placewaifu.com/image/300/300"
+							}
+							alt={user?.profile?.fullName!}
+						/>
+						<AvatarFallback>
+							{user?.profile?.fullName?.charAt(0) || "U"}
+						</AvatarFallback>
+					</Avatar>
+					<div className="ml-3 flex-1 min-w-0">
+						<p className="text-sm font-medium truncate">
+							{user?.profile?.fullName}
+						</p>
+						<p className="text-xs text-muted-foreground truncate">
+							{user?.email}
+						</p>
+					</div>
+					<Button variant="ghost" size="icon" onClick={handleLogout}>
+						<FiLogOut className="h-5 w-5" />
+					</Button>
+				</Link>
+			</div>
+		</div>
+	);
+
 	return (
 		<>
 			{/* Desktop sidebar */}
 			<DesktopSidebar />
 
-			{/* Mobile Header */}
-			<MobileHeader />
+			{/* Header - visible on both mobile and desktop */}
+			<div className={cn("min-h-screen bg-background", "lg:pl-64")}>
+				<Header />
 
-			{/* Main content */}
-			<div className="lg:pl-64 min-h-screen bg-background">
+				{/* Main content */}
 				<main className="p-4 md:p-6 max-w-7xl mx-auto">{children}</main>
 			</div>
 		</>
