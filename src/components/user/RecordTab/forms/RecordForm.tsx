@@ -124,7 +124,7 @@ export default function RecordForm({
 			followupDate: dayjs(data.followupDate).toDate(),
 		});
 	}, [data, form]);
-	const { mutate } = useCreateMedicalRecord({
+	const { mutate,mutateAsync } = useCreateMedicalRecord({
 		mutation: {
 			onSuccess: (data) => {
 				form.reset();
@@ -144,6 +144,7 @@ export default function RecordForm({
 			},
 		},
 	});
+
 	const onSubmit = async (data: MedicalRecordFormValues) => {
 		mutate({
 			data: {
@@ -154,7 +155,7 @@ export default function RecordForm({
 					: undefined,
 				profileId: profileId,
 			},
-		});
+		})
 	};
 
 	return (

@@ -58,6 +58,7 @@ import {
 import AddDoctorDrawer from "@/components/AddDoctorDrawer";
 import { Can } from "@/contexts/AbilityContext";
 import { subject } from "@casl/ability";
+import { getImageViewUrl } from "@/utils/file";
 
 // Zod schema based on the provided validation annotations
 const familySchema = z.object({
@@ -330,7 +331,7 @@ export default function FamilyInfo({ family }: FamilyInfoProps) {
 							<div className="flex items-center p-3 bg-muted/20 rounded-lg">
 								<Avatar className="h-12 w-12 mr-4 border">
 									<AvatarImage
-										src={"https://placewaifu.com/image/200"}
+										src={getImageViewUrl(householder.profile?.avatarUrl||"https://placewaifu.com/image/200")}
 										alt={
 											householder.profile?.fullName || ""
 										}

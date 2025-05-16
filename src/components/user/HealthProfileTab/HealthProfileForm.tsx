@@ -13,6 +13,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Profile } from "@/models/generated";
+import {
+	getMeQueryKey,
+	useUpdateHealthProfile,
+} from "@/queries/generated/profile-controller/profile-controller";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const healthProfileSchema = z.object({
 	bloodType: z
@@ -75,15 +81,40 @@ const HealthProfileForm = ({
 		notes: profile.notes || "Không có",
 		healthInsuranceNumber: profile.healthInsuranceNumber || "",
 	};
+	const client = useQueryClient();
+
+	const mutation = useUpdateHealthProfile({
+		mutation: {
+			onError: (error: any) => {
+				toast.error(error.response?.data?.message || error.message);
+			},
+			onSuccess: () => {
+				onSubmitSuccess();
+				client.invalidateQueries({
+					queryKey: getMeQueryKey(),
+				});
+			},
+		},
+	});
 
 	const healthForm = useForm<HealthProfileValues>({
 		resolver: zodResolver(healthProfileSchema),
 		defaultValues: defaultHealthValues,
 	});
-
 	const onSubmit = (data: HealthProfileValues) => {
-		console.log("Updated health profile data:", data);
-		onSubmitSuccess();
+		console.log("Submitted data:", data);
+		mutation.mutateAsync({
+			id: profile.id?.toString()!,
+			data: {
+				bloodType: data.bloodType,
+				height: data.height,
+				weight: data.weight,
+				allergies: data.allergies,
+				chronicDiseases: data.chronicDiseases,
+				notes: data.notes,
+				healthInsuranceNumber: data.healthInsuranceNumber,
+			},
+		});
 	};
 
 	return (

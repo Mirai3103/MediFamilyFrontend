@@ -198,7 +198,7 @@ const LandingPage = () => {
 						<div className="w-full md:w-1/2">
 							<div className="relative w-full h-auto overflow-hidden rounded-lg shadow-xl">
 								<img
-									src="https://placewaifu.com/image/600/400"
+									src="http://s3ui.huuhoang.id.vn/api/v1/download-shared-object/aHR0cDovLzEyNy4wLjAuMTo5MDAwL2ZhbWlseS1oZWFsdGgvaW1hZ2UlMjAlMjgxJTI5LmpwZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPU1DNUNFMzkwMVYyWERSUERJWTM1JTJGMjAyNTA1MTYlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwNTE2VDA3MTkzN1omWC1BbXotRXhwaXJlcz00MzE5OSZYLUFtei1TZWN1cml0eS1Ub2tlbj1leUpoYkdjaU9pSklVelV4TWlJc0luUjVjQ0k2SWtwWFZDSjkuZXlKaFkyTmxjM05MWlhraU9pSk5RelZEUlRNNU1ERldNbGhFVWxCRVNWa3pOU0lzSW1WNGNDSTZNVGMwTnpReU16RTJOU3dpY0dGeVpXNTBJam9pYUc5aFozaDRiR3dpZlEuVXgtLWxmUGJuX3BXaE5jQTc2dTBteDhuOFZJM3Facm9zWENnY0huaUlJNWd0WnozTXZEVi0yWGI3d0VHX0duajhIcnMycmViUk1SVnhJOUx2TXB4UUEmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JnZlcnNpb25JZD1udWxsJlgtQW16LVNpZ25hdHVyZT1hYjc4ZGM0NDVlNTc2NzY2MDBjMjEzYTkxNTc5ZjA1YTUxMjZjMDM1OWVmNTkzOTFiMTc3YjYyMDhkMjVlNmI4"
 									alt="Ứng dụng quản lý hồ sơ y tế gia đình"
 									className="object-cover w-full h-full"
 								/>
@@ -393,7 +393,7 @@ const LandingPage = () => {
 										Bảng điều khiển
 									</TabsTrigger>
 									<TabsTrigger value="health">
-										Theo dõi sức khỏe
+										Chia sẻ hồ sơ sức khỏe
 									</TabsTrigger>
 									<TabsTrigger value="vaccination">
 										Lịch tiêm ngừa
@@ -402,7 +402,7 @@ const LandingPage = () => {
 
 								<TabsContent value="dashboard" className="p-0">
 									<img
-										src="https://placewaifu.com/image/1000/600"
+										src="http://s3ui.huuhoang.id.vn/api/v1/download-shared-object/aHR0cDovLzEyNy4wLjAuMTo5MDAwL2ZhbWlseS1oZWFsdGgvU2NyZWVuc2hvdCUyMDIwMjUtMDUtMTYlMjAxNDIwMzQucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9TUM1Q0UzOTAxVjJYRFJQRElZMzUlMkYyMDI1MDUxNiUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNTA1MTZUMDcyMzM2WiZYLUFtei1FeHBpcmVzPTQzMTk5JlgtQW16LVNlY3VyaXR5LVRva2VuPWV5SmhiR2NpT2lKSVV6VXhNaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpoWTJObGMzTkxaWGtpT2lKTlF6VkRSVE01TURGV01saEVVbEJFU1Zrek5TSXNJbVY0Y0NJNk1UYzBOelF5TXpFMk5Td2ljR0Z5Wlc1MElqb2lhRzloWjNoNGJHd2lmUS5VeC0tbGZQYm5fcFdoTmNBNzZ1MG14OG44VkkzcVpyb3NYQ2djSG5pSUk1Z3RaejNNdkRWLTJYYjd3RUdfR25qOEhyczJyZWJSTVJWeEk5THZNcHhRQSZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmdmVyc2lvbklkPW51bGwmWC1BbXotU2lnbmF0dXJlPTgwYjRmMGFhOWI4MGZjNTg3NDc1MDhlYmE4NGJlOWNkYzdhMzM4M2ExZTQ2N2UyZGMyODBjOWJiMmVmMmYwNjE"
 										alt="Dashboard preview"
 										className="w-full h-auto"
 									/>
@@ -410,7 +410,7 @@ const LandingPage = () => {
 
 								<TabsContent value="health" className="p-0">
 									<img
-										src="https://placewaifu.com/image/1000/600?seed=2"
+										src="http://s3ui.huuhoang.id.vn/api/v1/download-shared-object/aHR0cDovLzEyNy4wLjAuMTo5MDAwL2ZhbWlseS1oZWFsdGgvU2NyZWVuc2hvdCUyMDIwMjUtMDUtMTYlMjAxNDIxMTkucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9TUM1Q0UzOTAxVjJYRFJQRElZMzUlMkYyMDI1MDUxNiUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNTA1MTZUMDcyNDE4WiZYLUFtei1FeHBpcmVzPTQzMjAwJlgtQW16LVNlY3VyaXR5LVRva2VuPWV5SmhiR2NpT2lKSVV6VXhNaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpoWTJObGMzTkxaWGtpT2lKTlF6VkRSVE01TURGV01saEVVbEJFU1Zrek5TSXNJbVY0Y0NJNk1UYzBOelF5TXpFMk5Td2ljR0Z5Wlc1MElqb2lhRzloWjNoNGJHd2lmUS5VeC0tbGZQYm5fcFdoTmNBNzZ1MG14OG44VkkzcVpyb3NYQ2djSG5pSUk1Z3RaejNNdkRWLTJYYjd3RUdfR25qOEhyczJyZWJSTVJWeEk5THZNcHhRQSZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmdmVyc2lvbklkPW51bGwmWC1BbXotU2lnbmF0dXJlPWI0M2JmYmU4MGM5MDE4YzJhMThjZDk4ZDRmYmQ1YTNkMWFmODFkMDBjMGEyYWUyZjU5NzI0YTM5Nzk1ZjRhZTA"
 										alt="Health tracking preview"
 										className="w-full h-auto"
 									/>
@@ -421,7 +421,7 @@ const LandingPage = () => {
 									className="p-0"
 								>
 									<img
-										src="https://placewaifu.com/image/1000/600?seed=3"
+										src="http://s3ui.huuhoang.id.vn/api/v1/download-shared-object/aHR0cDovLzEyNy4wLjAuMTo5MDAwL2ZhbWlseS1oZWFsdGgvU2NyZWVuc2hvdCUyMDIwMjUtMDUtMTYlMjAxNDIxMDMucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9TUM1Q0UzOTAxVjJYRFJQRElZMzUlMkYyMDI1MDUxNiUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNTA1MTZUMDcyNDA4WiZYLUFtei1FeHBpcmVzPTQzMjAwJlgtQW16LVNlY3VyaXR5LVRva2VuPWV5SmhiR2NpT2lKSVV6VXhNaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpoWTJObGMzTkxaWGtpT2lKTlF6VkRSVE01TURGV01saEVVbEJFU1Zrek5TSXNJbVY0Y0NJNk1UYzBOelF5TXpFMk5Td2ljR0Z5Wlc1MElqb2lhRzloWjNoNGJHd2lmUS5VeC0tbGZQYm5fcFdoTmNBNzZ1MG14OG44VkkzcVpyb3NYQ2djSG5pSUk1Z3RaejNNdkRWLTJYYjd3RUdfR25qOEhyczJyZWJSTVJWeEk5THZNcHhRQSZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmdmVyc2lvbklkPW51bGwmWC1BbXotU2lnbmF0dXJlPThhMTAwMTJmMGNiZTZlYTQ3NzIzNDkyZGUwNDA0YTMzNGQzMjliMGZkMGQ1ODZhZDM2ZTM4NThmNGNhN2EwM2I"
 										alt="Vaccination schedule preview"
 										className="w-full h-auto"
 									/>
@@ -583,7 +583,7 @@ const LandingPage = () => {
 				</section>
 
 				{/* Team */}
-				<section id="about" className="py-20 bg-gray-50">
+				{/* <section id="about" className="py-20 bg-gray-50">
 					<div className="container px-4 mx-auto">
 						<div className="max-w-2xl mx-auto mb-16 text-center">
 							<h2 className="text-3xl font-bold">
@@ -614,7 +614,7 @@ const LandingPage = () => {
 							))}
 						</div>
 					</div>
-				</section>
+				</section> */}
 
 				{/* CTA */}
 				<section className="py-20 text-white bg-primary">

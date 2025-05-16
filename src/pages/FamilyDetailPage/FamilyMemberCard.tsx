@@ -50,6 +50,7 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useRouter } from "@tanstack/react-router";
+import { getImageViewUrl } from "@/utils/file";
 
 interface MemberCardProps {
 	member: NonNullable<FamilyDTO["familyMembers"]>[0];
@@ -75,7 +76,6 @@ export const MemberCard = ({
 	const gender = member.profile?.gender;
 	const relationship = member.relationship;
 	const address = member.profile?.address || "Chưa cập nhật";
-	const avatarUrl = "https://placewaifu.com/image/200";
 
 	// Lấy chữ cái đầu của họ tên để làm avatar fallback
 	const getInitials = (name: string) => {
@@ -132,7 +132,8 @@ export const MemberCard = ({
 							<AvatarImage
 								width={96}
 								height={96}
-								src={avatarUrl}
+								src={getImageViewUrl(
+									member.profile?.avatarUrl||"https://placewaifu.com/image/200")}
 								alt={fullName}
 								className="object-cover"
 							/>

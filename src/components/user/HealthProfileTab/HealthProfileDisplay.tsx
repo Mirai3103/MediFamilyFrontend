@@ -7,6 +7,7 @@ interface HealthProfileDisplayProps {
 }
 
 const HealthProfileDisplay = ({ profile }: HealthProfileDisplayProps) => {
+	console.log("HealthProfileDisplay", profile);
 	return (
 		<div className="space-y-6">
 			<HealthMetricsCards profile={profile} />
